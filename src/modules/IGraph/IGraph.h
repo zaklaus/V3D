@@ -3,6 +3,7 @@
 
 struct GLFWwindow;
 struct GLFWmonitor;
+class IDevice;
 
 enum class RenderingBackend {
     DirectX, 
@@ -13,7 +14,7 @@ class IGraph {
     public:
         IGraph();
         ~IGraph();
-        bool init(RenderingBackend backendType, int width, int height, const char* title, int posX, int posY);
+        bool init(RenderingBackend backendType, int width, int height, const char* title);
         void destroy();
         void pollEvents();
         void render();
@@ -30,9 +31,12 @@ class IGraph {
 
         const glm::vec3& getMouseDelta();
         double getTime();
+
+        IDevice* getDevice() { return _renderBackend; }
     private:
         GLFWwindow* _window{ nullptr };
         GLFWmonitor* _monitor{ nullptr };
+        IDevice* _renderBackend{ nullptr };
         RenderingBackend _backendType;
         bool _inited{ false };
         glm::ivec2 _windowSize{};
