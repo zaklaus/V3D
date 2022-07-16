@@ -18,6 +18,7 @@ class IDevice_D3D9 : public IDevice {
         d3dpp.Windowed                  = TRUE;
         d3dpp.SwapEffect                = D3DSWAPEFFECT_DISCARD;
         d3dpp.EnableAutoDepthStencil    = TRUE;
+        d3dpp.PresentationInterval      = D3DPRESENT_INTERVAL_ONE;
         d3dpp.AutoDepthStencilFormat    = D3DFMT_D24S8;
         
         if (FAILED(_d3d->CreateDevice(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, (HWND)windowHandle,

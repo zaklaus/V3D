@@ -24,8 +24,8 @@ int main() {
     };
 
     eastl::vector<VertexDeclElement> vsDecls = {
-        {0, DECLTYPE_FLOAT4, DECLUSAGE_POSITIONT, 0},
-        {16, DECLTYPE_D3DCOLOR, DECLUSAGE_COLOR, 0}
+        {0,     DECLTYPE_FLOAT4,    DECLUSAGE_POSITIONT,    0},
+        {16,    DECLTYPE_D3DCOLOR,  DECLUSAGE_COLOR,        0}
     };
 
     ResourceHandle vdecl = device->createVertexDeclaration(vsDecls);
