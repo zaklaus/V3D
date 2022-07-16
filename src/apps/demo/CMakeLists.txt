@@ -2,4 +2,4 @@ add_executable(demo
     main.cpp
 )
 
-target_link_libraries(demo EASTL)
+target_link_libraries(demo IGraph)
