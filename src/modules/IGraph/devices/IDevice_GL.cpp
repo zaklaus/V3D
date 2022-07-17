@@ -2,6 +2,7 @@
 #include "../IDevice.h"
 
 #include <glad/glad.h>
+#include <stdio.h>
 
 const char* vsShader = R"(#version 400 core
 layout (location = 0) in vec4 pos;
@@ -27,6 +28,10 @@ void main() {
 struct VertexDecl_Userdata {
     GLuint Vao{};
     eastl::vector<VertexDeclElement> DeclElements; 
+};
+
+struct GLResource_Userdata {
+    GLuint Handle{};
 };
 
 class IDevice_GL : public IDevice {
@@ -68,9 +73,12 @@ class IDevice_GL : public IDevice {
         glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &maxAnisotropy);
         glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, maxAnisotropy);*/
         
+        auto* userData = new GLResource_Userdata();
+        userData->Handle = textureId;
+
         return {  
             ResourceType::TEXTURE, 
-            (void*)textureId
+            (void*)userData
         };
     }
 
@@ -80,16 +88,18 @@ class IDevice_GL : public IDevice {
         switch(handle.Type) {
             case ResourceType::TEXTURE: {
                 //TODO: here remove from vector
-                GLuint id  = (GLuint)handle._userData;
-                assert(id != 0);
-                glDeleteTextures(1, (const GLuint*)&id);
+                auto* data = reinterpret_cast<GLResource_Userdata*>(handle._userData);
+                assert(data->Handle != 0);
+                glDeleteTextures(1, (const GLuint*)&data->Handle);
+                delete data;
             } break;
 
             case ResourceType::BUFFER_INDEX:
             case ResourceType::BUFFER_VERTEX: {
-                GLuint id  = (GLuint)handle._userData;
-                assert(id != 0);
-                glDeleteBuffers(1, (const GLuint*)&id);
+                auto* data = reinterpret_cast<GLResource_Userdata*>(handle._userData);
+                assert(data->Handle != 0);
+                glDeleteBuffers(1, (const GLuint*)&data->Handle);
+                delete data;
             } break;
 
             case ResourceType::VERTEX_DECL: {
@@ -107,8 +117,11 @@ class IDevice_GL : public IDevice {
         assert(handle.Type == ResourceType::TEXTURE);
         if(handle._userData == nullptr) return;
 
+        auto* data = reinterpret_cast<GLResource_Userdata*>(handle._userData);
+        assert(data->Handle != 0);
+
         glActiveTexture(GL_TEXTURE0 + samplerId);
-        glBindTexture(GL_TEXTURE_2D, (GLuint)handle._userData);
+        glBindTexture(GL_TEXTURE_2D, data->Handle);
     }
 
     void clearTexture(int samplerId) override {
@@ -139,7 +152,7 @@ class IDevice_GL : public IDevice {
             strideSize += declTypesSizes[elem.DeclType] * getVertexDeclElementCount(elem);
         }
 
-        return strideSize;        
+        return strideSize;     
     }
 
     //NOTE: buffers
@@ -216,9 +229,12 @@ class IDevice_GL : public IDevice {
             glBindBuffer(GL_ARRAY_BUFFER, vbo);
         }   
 
+        auto* data = new GLResource_Userdata();
+        data->Handle = vbo;
+
         return { 
             ResourceType::BUFFER_VERTEX,
-            (void*)vbo
+            (void*)data
         };
     }
 
@@ -235,9 +251,12 @@ class IDevice_GL : public IDevice {
             glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
         }
 
+        auto* data = new GLResource_Userdata();
+        data->Handle = indexBufer;
+
         return {
             ResourceType::BUFFER_INDEX,
-            (void*)indexBufer
+            (void*)data
         };
     }
 
@@ -246,10 +265,13 @@ class IDevice_GL : public IDevice {
         assert(handle.Type == ResourceType::BUFFER_INDEX || handle.Type == ResourceType::BUFFER_VERTEX);
         assert(handle._userData != nullptr);
 
+        auto* data = reinterpret_cast<GLResource_Userdata*>(handle._userData);
+        assert(data->Handle != 0);
+
         if(handle.Type == ResourceType::BUFFER_VERTEX) {
-            glBindBuffer(GL_ARRAY_BUFFER, (GLuint)handle._userData);
+            glBindBuffer(GL_ARRAY_BUFFER, data->Handle);
         } else {
-            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, (GLuint)handle._userData);
+            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, data->Handle);
         }
     }
 
