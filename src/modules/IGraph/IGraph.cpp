@@ -1,20 +1,19 @@
 #include "IGraph.h"
+#include "IDevice.h"
 
 #ifdef _WIN32
-#define GLFW_EXPOSE_NATIVE_WIN32
-#include <GLFW/glfw3.h>
-#include <GLFW/glfw3native.h>
+    #define GLFW_EXPOSE_NATIVE_WIN32
+    #include <GLFW/glfw3.h>
+    #include <GLFW/glfw3native.h>
+
+    #include "devices/IDevice_D3D9.h"
 #else
-#include <GLFW/glfw3.h>
+    #include <GLFW/glfw3.h>
 #endif
 
-#include "devices/IDevice_D3D9.h"
+IGraph::IGraph() { }
 
-IGraph::IGraph() {
-}
-
-IGraph::~IGraph() {
-}
+IGraph::~IGraph() { }
 
 bool IGraph::init(RenderingBackend backendType, int width, int height, const char* title) {
 
@@ -67,18 +66,35 @@ bool IGraph::init(RenderingBackend backendType, int width, int height, const cha
     _monitor = glfwGetPrimaryMonitor();
     glfwGetWindowSize(_window, &_windowSize[0], &_windowSize[1]);
     glfwGetWindowPos(_window, &_windowPos[0], &_windowPos[1]);
- 
-    switch(backendType) {
-        case RenderingBackend::DirectX: {
-            _renderBackend = createDeviceD3D9();
-        } break;
-    }
-
-    if(_renderBackend == nullptr) {
+    
+    if(!initRenderBackend()) {
         return false;
     }
 
-    void* windowHandle{ nullptr}; 
+    _inited = true;
+    return true;
+}
+
+bool IGraph::initRenderBackend() {
+    switch(_backendType) {
+
+        #ifdef _WIN32
+        case RenderingBackend::DirectX: {
+            _renderBackend = createDeviceD3D9();
+        } break;
+        #endif
+
+        default: {
+            //LOG: unsported rendering backend
+            _renderBackend = nullptr;
+        } break;
+    }
+
+    if(_renderBackend == nullptr)
+        return false;
+    
+    void* windowHandle{ nullptr};
+
 #ifdef _WIN32
     windowHandle = glfwGetWin32Window(_window);
 #endif
@@ -88,7 +104,6 @@ bool IGraph::init(RenderingBackend backendType, int width, int height, const cha
     }
 
     _renderBackend->setViewport(_windowSize);
-    _inited = true;
     return true;
 }
 

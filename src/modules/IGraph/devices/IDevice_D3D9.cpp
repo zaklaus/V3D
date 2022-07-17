@@ -1,4 +1,5 @@
 #include "IDevice_D3D9.h"
+#include "../IDevice.h"
 
 #include <d3d9.h>
 #define GLM_DX(X) *(D3DMATRIX*)(&X)

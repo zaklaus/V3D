@@ -1,5 +1,7 @@
 #include <EASTL/allocator.h>
+
 #include <stdio.h>
+#include <wchar.h>
 
 // EASTL expects us to define these, see allocator.h line 194
 void* operator new[](size_t size, const char* /*pName*/, int /*flags*/,
@@ -16,25 +18,36 @@ void* operator new[](size_t size, size_t alignment, size_t /*alignmentOffset*/,
     return ::new char[size];
 }
 
-// EASTL also wants us to define this (see string.h line 197)
-int Vsnprintf8(char* pDestination, size_t n, const char* pFormat, va_list arguments)
-{
-#ifdef _MSC_VER
-    return _vsnprintf(pDestination, n, pFormat, arguments);
-#else
-    return vsnprintf(pDestination, n, pFormat, arguments);
-#endif
-}
+///////////////////////////////////////////////////////////////////////////////
+// Required by EASTL.
+//
+#if !EASTL_EASTDC_VSNPRINTF
+	int Vsnprintf8(char* pDestination, size_t n, const char*  pFormat, va_list arguments)
+	{
+		return EA::StdC::Vsnprintf(pDestination, n, pFormat, arguments);
+	}
 
-int Vsnprintf16(char16_t* pDestination, size_t n, const char16_t* pFormat, va_list arguments)
-{
-#ifdef _MSC_VER
-    return _vsnwprintf((wchar_t*)pDestination, n, (wchar_t*)pFormat, arguments);
-#else
-    char* d = new char[n+1];
-		int r = vsnprintf(d, n, convertstring<char16_t, char>(pFormat).c_str(), arguments);
-		memcpy(pDestination, convertstring<char, char16_t>(d).c_str(), (n+1)*sizeof(char16_t));
-		delete[] d;
-		return r;
+	int Vsnprintf16(char16_t* pDestination, size_t n, const char16_t* pFormat, va_list arguments)
+	{
+		return EA::StdC::Vsnprintf(pDestination, n, pFormat, arguments);
+	}
+
+	int Vsnprintf32(char32_t* pDestination, size_t n, const char32_t* pFormat, va_list arguments)
+	{
+		return EA::StdC::Vsnprintf(pDestination, n, pFormat, arguments);
+	}
+
+	#if defined(EA_CHAR8_UNIQUE) && EA_CHAR8_UNIQUE
+		int Vsnprintf8(char8_t* pDestination, size_t n, const char8_t*  pFormat, va_list arguments)
+		{
+			return EA::StdC::Vsnprintf(pDestination, n, pFormat, arguments);
+		}
+	#endif
+
+	#if defined(EA_WCHAR_UNIQUE) && EA_WCHAR_UNIQUE
+		int VsnprintfW(wchar_t* pDestination, size_t n, const wchar_t* pFormat, va_list arguments)
+		{
+			return EA::StdC::Vsnprintf(pDestination, n, pFormat, arguments);
+		}
+	#endif
 #endif
-}

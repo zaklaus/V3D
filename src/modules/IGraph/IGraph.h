@@ -34,6 +34,8 @@ class IGraph {
 
         IDevice* getDevice() { return _renderBackend; }
     private:
+        bool initRenderBackend();
+
         GLFWwindow* _window{ nullptr };
         GLFWmonitor* _monitor{ nullptr };
         IDevice* _renderBackend{ nullptr };

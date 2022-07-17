@@ -1,9 +1,18 @@
-add_library(IGraph STATIC
-    system.cpp
+#cross platform sources
+set(SOURCES system.cpp
     IGraph.cpp
-
     IDevice.cpp
-    devices/IDevice_D3D9.cpp
+)
+
+#windows only
+if(WIN32)
+    set(SOURCES ${SOURCES} 
+        devices/IDevice_D3D9.cpp
+    )
+endif()
+
+add_library(IGraph STATIC
+    ${SOURCES}
 )
 
 target_include_directories(IGraph PUBLIC .)
