@@ -5,6 +5,7 @@ include_directories(
     ../vendors/DirectX/Include
     ../vendors/glfw-3.3.7/include
     ../vendors/glm
+    ../vendors/glad/include
 )
 
 add_subdirectory(apps/demo)

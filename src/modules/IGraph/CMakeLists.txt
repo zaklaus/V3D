@@ -2,6 +2,7 @@
 set(SOURCES system.cpp
     IGraph.cpp
     IDevice.cpp
+    devices/IDevice_GL.cpp
 )
 
 #windows only
@@ -16,7 +17,7 @@ add_library(IGraph STATIC
 )
 
 target_include_directories(IGraph PUBLIC .)
-target_link_libraries(IGraph EASTL glm glfw)
+target_link_libraries(IGraph EASTL glm glfw glad)
 
 if(WIN32)
 target_link_libraries(IGraph d3d9)

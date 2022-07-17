@@ -1,6 +1,8 @@
 #include "IGraph.h"
 #include "IDevice.h"
 
+#include <glad/glad.h>
+
 #ifdef _WIN32
     #define GLFW_EXPOSE_NATIVE_WIN32
     #include <GLFW/glfw3.h>
@@ -10,6 +12,8 @@
 #else
     #include <GLFW/glfw3.h>
 #endif
+
+#include "devices/IDevice_GL.h"
 
 IGraph::IGraph() { }
 
@@ -37,6 +41,11 @@ bool IGraph::init(RenderingBackend backendType, int width, int height, const cha
     }
 
     glfwMakeContextCurrent(_window);
+
+    //NOTE: for GL we need extension loader
+    if(backendType == RenderingBackend::OpenGL) {
+        gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
+    }
 
     //NOTE: init callbacks
     {
@@ -79,10 +88,14 @@ bool IGraph::initRenderBackend() {
     switch(_backendType) {
 
         #ifdef _WIN32
-        case RenderingBackend::DirectX: {
+        case RenderingBackend::DirectX:
             _renderBackend = createDeviceD3D9();
-        } break;
+        break;
         #endif
+
+        case RenderingBackend::OpenGL:
+            _renderBackend = createDeviceGL();
+        break;
 
         default: {
             //LOG: unsported rendering backend

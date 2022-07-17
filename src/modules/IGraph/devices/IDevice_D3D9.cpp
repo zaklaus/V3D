@@ -4,7 +4,7 @@
 #include <d3d9.h>
 #define GLM_DX(X) *(D3DMATRIX*)(&X)
 
-struct VertexDecl_Userdata {
+struct VertexBuffer_Userdata {
     LPDIRECT3DVERTEXBUFFER9 Buffer;
     size_t Stride;
 };
@@ -86,7 +86,7 @@ class IDevice_D3D9 : public IDevice {
             } break;
 
             case ResourceType::BUFFER_VERTEX: {
-                auto* data = reinterpret_cast<VertexDecl_Userdata*>(handle._userData);
+                auto* data = reinterpret_cast<VertexBuffer_Userdata*>(handle._userData);
                 assert(data->Buffer != nullptr);
 
                 data->Buffer->Release();
@@ -175,7 +175,7 @@ class IDevice_D3D9 : public IDevice {
             vbuffer->Unlock();
         }
 
-        VertexDecl_Userdata* bufferUserData = new VertexDecl_Userdata();
+        VertexBuffer_Userdata* bufferUserData = new VertexBuffer_Userdata();
         bufferUserData->Buffer = vbuffer;
         bufferUserData->Stride = vertexStride;
 
@@ -220,7 +220,7 @@ class IDevice_D3D9 : public IDevice {
         assert(handle.Type == ResourceType::BUFFER_INDEX || handle.Type == ResourceType::BUFFER_VERTEX);
 
         if(handle.Type == ResourceType::BUFFER_VERTEX) {
-            auto* data = reinterpret_cast<VertexDecl_Userdata*>(handle._userData);
+            auto* data = reinterpret_cast<VertexBuffer_Userdata*>(handle._userData);
             assert(data->Buffer != nullptr);
             _device->SetStreamSource(0, data->Buffer, 0, data->Stride);
         } else {
