@@ -7,11 +7,11 @@
 
 const char* vsShader = R"(#version 400 core
 layout (location = 0) in vec4 pos;
-layout (location = 1) in uint vertexColor;
+layout (location = 1) in vec2 uv;
 
 uniform bool u_positionTransformed;
 
-out vec4 vColor;
+out vec2 vTexCoords;
 
 void main() {
     // TODO: store screen info in a shader and use it here
@@ -24,16 +24,21 @@ void main() {
     } else {
         gl_Position = pos;
     }
-    vColor = unpackUnorm4x8(vertexColor);
+
+    //vColor = unpackUnorm4x8(vertexColor);
+    vTexCoords = uv;
 }
 )";
 
 const char* fsShader = R"(#version 400 core
-in vec4 vColor;
+//in vec4 vColor;
+in vec2 vTexCoords;
 out vec4 fragColor;
 
+uniform sampler2D texture0;
+
 void main() {
-    fragColor = vColor;
+    fragColor = texture2D(texture0, vTexCoords);
 }
 )";
 
