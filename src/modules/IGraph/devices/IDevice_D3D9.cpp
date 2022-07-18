@@ -117,8 +117,9 @@ class IDevice_D3D9 : public IDevice {
     }
 
     //NOTE: buffers
-    ResourceHandle createVertexDeclaration(const eastl::vector<VertexDeclElement>& vertexDecl) override {
+    ResourceHandle createVertexDeclaration(const eastl::vector<VertexDeclElement>& vertexDecl, const ResourceHandle& vertexBuffer) override {
         if(vertexDecl.empty()) return {};
+        assert(vertexBuffer.Type == ResourceType::BUFFER_VERTEX);
 
         eastl::vector<D3DVERTEXELEMENT9> vertexElements(vertexDecl.size() + 1);
         for(size_t i = 0; i < vertexDecl.size(); i++) {

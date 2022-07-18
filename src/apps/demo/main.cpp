@@ -31,11 +31,12 @@ int main() {
     ResourceHandle vbuffer = device->createVertexBuffer(vertices, 3, sizeof(Vertex));
     device->bindBuffer(vbuffer);
 
-    ResourceHandle vdecl = device->createVertexDeclaration(vsDecls);
+    ResourceHandle vdecl = device->createVertexDeclaration(vsDecls, vbuffer);
     device->setVertexDeclaration(vdecl);
 
     ResourceHandle vindex = device->createIndexBuffer(indices, 3);
     device->bindBuffer(vindex);
+
 
     while(!graph.closeRequested()) {
         graph.pollEvents();

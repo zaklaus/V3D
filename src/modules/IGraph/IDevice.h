@@ -89,7 +89,7 @@ public:
     virtual void clearTexture(int samplerId) = 0;
 
     //NOTE: buffers
-    virtual ResourceHandle createVertexDeclaration(const eastl::vector<VertexDeclElement>& vertexDecl) = 0;
+    virtual ResourceHandle createVertexDeclaration(const eastl::vector<VertexDeclElement>& vertexDecl, const ResourceHandle& vertexBuffer) = 0;
     virtual void setVertexDeclaration(const ResourceHandle& handle) = 0;
 
     virtual ResourceHandle createVertexBuffer(const void* vertices, size_t verticesCnt, size_t vertexStride, BufferUsage usage = BufferUsage::STATIC) = 0;

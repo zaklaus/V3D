@@ -173,14 +173,18 @@ public:
     }
 
     //NOTE: buffers
-    ResourceHandle createVertexDeclaration(const eastl::vector<VertexDeclElement>& vertexDecl) override {
+    ResourceHandle createVertexDeclaration(const eastl::vector<VertexDeclElement>& vertexDecl, const ResourceHandle& vertexBuffer) override {
         if(vertexDecl.empty()) return {};
+        assert(vertexBuffer.Type == ResourceType::BUFFER_VERTEX);
 
         GLuint vao{};
         glGenVertexArrays(1, &vao);
         assert(vao != 0);
 
         glBindVertexArray(vao);
+
+        // NOTE: vertex buffer needs to be bound before we map it to the VAO
+        bindBuffer(vertexBuffer);
 
         GLuint vertexDeclStride = getVertexDeclStride(vertexDecl);
 
@@ -196,6 +200,7 @@ public:
         }
 
         glBindVertexArray(0);
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
 
         auto* data = new VertexDecl_Userdata();
         data->DeclElements = vertexDecl;
