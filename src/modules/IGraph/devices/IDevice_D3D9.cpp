@@ -1,6 +1,8 @@
 #include "IDevice_D3D9.h"
 #include "../IDevice.h"
 
+#include <EASTL/unordered_map.h>
+
 #include <d3d9.h>
 #define GLM_DX(X) *(D3DMATRIX*)(&X)
 
@@ -10,6 +12,44 @@ struct VertexBuffer_Userdata {
 };
 
 class IDevice_D3D9 : public IDevice {
+private:
+    eastl::unordered_map<DeviceStates, uint32_t> stateMap;
+    eastl::unordered_map<SamplerStates, uint32_t> samplerMap;
+    eastl::unordered_map<SamplerValues, uint32_t> samplerValueMap;
+
+    void initStateMap() {
+        stateMap[DeviceStates::FOG] = D3DRS_FOGENABLE;
+        stateMap[DeviceStates::ZBUFFER] = D3DRS_ZENABLE;
+        stateMap[DeviceStates::ALPHA_BLEND] = D3DRS_ALPHABLENDENABLE;
+        stateMap[DeviceStates::ALPHA_TEST] = D3DRS_ALPHATESTENABLE;
+        stateMap[DeviceStates::LIGHTING] = D3DRS_LIGHTING;
+        //todo
+    }
+
+    void initSamplerMap() {
+        samplerMap[SamplerStates::ADDRESSU] = D3DSAMP_ADDRESSU;
+        samplerMap[SamplerStates::ADDRESSV] = D3DSAMP_ADDRESSV;
+        samplerMap[SamplerStates::ADDRESSW] = D3DSAMP_ADDRESSW;
+        samplerMap[SamplerStates::BORDERCOLOR] = D3DSAMP_BORDERCOLOR;
+        samplerMap[SamplerStates::MAGFILTER] = D3DSAMP_MAGFILTER;
+        samplerMap[SamplerStates::MINFILTER] = D3DSAMP_MINFILTER;
+        samplerMap[SamplerStates::MIPFILTER] = D3DSAMP_MIPFILTER;
+        samplerMap[SamplerStates::MIPMAPLODBIAS] = D3DSAMP_MIPMAPLODBIAS;
+        samplerMap[SamplerStates::MAXMIPLEVEL] = D3DSAMP_MAXMIPLEVEL;
+        samplerMap[SamplerStates::MAXANISOTROPY] = D3DSAMP_MAXANISOTROPY;
+        samplerMap[SamplerStates::SRGBTEXTURE] = D3DSAMP_SRGBTEXTURE;
+        samplerMap[SamplerStates::ELEMENTINDEX] = D3DSAMP_ELEMENTINDEX;
+        samplerMap[SamplerStates::DMAPOFFSET] = D3DSAMP_DMAPOFFSET;
+
+        samplerValueMap[SAMPVAL_NONE] = D3DTEXF_NONE;
+        samplerValueMap[SAMPVAL_POINT] = D3DTEXF_POINT;
+        samplerValueMap[SAMPVAL_LINEAR] = D3DTEXF_LINEAR;
+        samplerValueMap[SAMPVAL_ANISOTROPIC] = D3DTEXF_ANISOTROPIC;
+        samplerValueMap[SAMPVAL_PYRAMIDALQUAD] = D3DTEXF_PYRAMIDALQUAD;
+        samplerValueMap[SAMPVAL_GAUSSIANQUAD] = D3DTEXF_GAUSSIANQUAD;
+    }
+
+public:
     bool init(void* windowHandle) override {
         _d3d = Direct3DCreate9(D3D_SDK_VERSION);
         if(_d3d == nullptr)
@@ -28,15 +68,18 @@ class IDevice_D3D9 : public IDevice {
             return false;
         }
 
-        //NOTE: some device states
-        _device->SetRenderState(D3DRS_ALPHABLENDENABLE, 0);
-        _device->SetRenderState(D3DRS_LIGHTING, FALSE);
-        _device->SetRenderState(D3DRS_ZENABLE, TRUE);
+        initStateMap();
+        initSamplerMap();
 
-        _device->SetSamplerState(0, D3DSAMP_MINFILTER, D3DTEXF_LINEAR);
-        _device->SetSamplerState(0, D3DSAMP_MAGFILTER, D3DTEXF_LINEAR);
-        _device->SetSamplerState(1, D3DSAMP_MINFILTER, D3DTEXF_LINEAR);
-        _device->SetSamplerState(1, D3DSAMP_MAGFILTER, D3DTEXF_LINEAR);
+        //NOTE: setup default states
+        setState(DeviceStates::ALPHA_BLEND, 0);
+        setState(DeviceStates::LIGHTING, 0);
+        setState(DeviceStates::ZBUFFER, 1);
+
+        setSamplerState(0, SamplerStates::MINFILTER, SAMPVAL_LINEAR);
+        setSamplerState(0, SamplerStates::MAGFILTER, SAMPVAL_LINEAR);
+        setSamplerState(1, SamplerStates::MINFILTER, SAMPVAL_LINEAR);
+        setSamplerState(1, SamplerStates::MAGFILTER, SAMPVAL_LINEAR);
         return true;
     }
 
@@ -249,6 +292,30 @@ class IDevice_D3D9 : public IDevice {
     void setModelMatrix(const glm::mat4& model) override {
         auto m = GLM_DX(model);
         _device->SetTransform(D3DTS_WORLD, &m);
+    }
+
+    void setState(DeviceStates state, uint32_t value) override {
+        _device->SetRenderState(static_cast<D3DRENDERSTATETYPE>(stateMap[state]), value);
+    }
+
+    uint32_t getState(DeviceStates state) override {
+        DWORD value{0};
+        _device->GetRenderState(static_cast<D3DRENDERSTATETYPE>(stateMap[state]), &value);
+        return value;
+    }
+
+    void setSamplerState(uint32_t slot, SamplerStates state, uint32_t value) override {
+        uint32_t value_ = value;
+        if (samplerValueMap.find(static_cast<SamplerValues>(value)) != samplerValueMap.end()) {
+            value_ = samplerValueMap[static_cast<SamplerValues>(value)];
+        }
+        _device->SetSamplerState(slot, static_cast<D3DSAMPLERSTATETYPE>(samplerMap[state]), value_);
+    }
+
+    uint32_t getSamplerState(uint32_t slot, SamplerStates state) override {
+        DWORD value{0};
+        _device->GetSamplerState(slot, static_cast<D3DSAMPLERSTATETYPE>(samplerMap[state]), &value);
+        return value;
     }
 
     void drawPrimitives(uint32_t vertexCount, uint32_t indicesCount, uint32_t vertexOffset = 0, uint32_t indexOffset = 0) override {

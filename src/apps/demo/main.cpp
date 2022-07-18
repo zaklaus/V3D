@@ -4,7 +4,7 @@
 
 int main() {
     IGraph graph{};
-    graph.init(RenderingBackend::OpenGL, 800, 600, "Demo");
+    graph.init(RenderingBackend::D3D9, 800, 600, "Demo");
 
     auto* device = graph.getDevice();
 

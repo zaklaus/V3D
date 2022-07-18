@@ -1,0 +1,34 @@
+#pragma once
+
+enum class DeviceStates : uint32_t {
+    FOG,
+    ZBUFFER,
+    ALPHA_BLEND,
+    ALPHA_TEST,
+    LIGHTING,
+};
+
+enum class SamplerStates : uint32_t {
+    ADDRESSU,
+    ADDRESSV,
+    ADDRESSW,
+    BORDERCOLOR,
+    MAGFILTER,
+    MINFILTER,
+    MIPFILTER,
+    MIPMAPLODBIAS,
+    MAXMIPLEVEL,
+    MAXANISOTROPY,
+    SRGBTEXTURE,
+    ELEMENTINDEX,
+    DMAPOFFSET,
+};
+
+enum SamplerValues {
+    SAMPVAL_NONE,
+    SAMPVAL_POINT,
+    SAMPVAL_LINEAR,
+    SAMPVAL_ANISOTROPIC,
+    SAMPVAL_PYRAMIDALQUAD,
+    SAMPVAL_GAUSSIANQUAD,
+};

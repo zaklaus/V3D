@@ -320,6 +320,24 @@ public:
 
     }
 
+    void setState(DeviceStates state, uint32_t value) override {
+        //todo
+    }
+
+    uint32_t getState(DeviceStates state) override {
+        //todo
+        return 0;
+    }
+
+    void setSamplerState(uint32_t slot, SamplerStates state, uint32_t value) override {
+        //todo
+    }
+
+    uint32_t getSamplerState(uint32_t slot, SamplerStates state) override {
+        //todo
+        return 0;
+    }
+
     void drawPrimitives(uint32_t vertexCount, uint32_t indicesCount, uint32_t vertexOffset = 0, uint32_t indexOffset = 0) override {
         glDrawElements(GL_TRIANGLES, indicesCount, GL_UNSIGNED_INT, (const void*)(sizeof(uint32_t) * vertexOffset));
     }

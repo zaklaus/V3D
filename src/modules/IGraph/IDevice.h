@@ -3,6 +3,8 @@
 #include <EASTL/vector.h>
 #include <glm/glm.hpp>
 
+#include "IDeviceStates.h"
+
 enum ClearFlags : uint32_t {
     CLEAR_COLOR =   (1 << 0),
     CLEAR_DEPTH =   (1 << 1),
@@ -101,6 +103,12 @@ public:
     virtual void setViewport(const glm::ivec2& size) = 0;
     virtual void setViewProjMatrix(const glm::mat4& view, const glm::mat4& proj) = 0;
     virtual void setModelMatrix(const glm::mat4& model) = 0;
+
+    virtual void     setState(DeviceStates state, uint32_t value) = 0;
+    virtual uint32_t getState(DeviceStates state) = 0;
+
+    virtual void     setSamplerState(uint32_t slot, SamplerStates state, uint32_t value) = 0;
+    virtual uint32_t getSamplerState(uint32_t slot, SamplerStates state) = 0;
 
     virtual void drawPrimitives(uint32_t vertexCount, uint32_t indicesCount, uint32_t vertexOffset = 0, uint32_t indexOffset = 0) = 0;
     virtual void clear(uint32_t clearFlags, const glm::vec3& color = { 0.0f, 0.0f, 0.0f }) const = 0;
