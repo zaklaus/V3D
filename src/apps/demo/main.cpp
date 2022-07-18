@@ -17,7 +17,7 @@ ResourceHandle loadTextureFromFile(IDevice* device, const char* file) {
 
 int main() {
     IGraph graph{};
-    graph.init(RenderingBackend::OpenGL, 800, 600, "Demo");
+    graph.init(RenderingBackend::D3D9, 800, 600, "Demo");
 
     auto* device = graph.getDevice();
     auto texture = loadTextureFromFile(device, "chopin.jpg");
@@ -35,7 +35,7 @@ int main() {
     };
 
     uint32_t indices[] = {
-        0, 1, 2, 2, 3, 1
+        0, 1, 2, 1, 3, 2
     };
 
     eastl::vector<VertexDeclElement> vsDecls = {
