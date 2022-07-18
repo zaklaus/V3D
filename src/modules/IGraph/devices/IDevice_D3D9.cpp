@@ -12,16 +12,16 @@ struct VertexBuffer_Userdata {
 class IDevice_D3D9 : public IDevice {
     bool init(void* windowHandle) override {
         _d3d = Direct3DCreate9(D3D_SDK_VERSION);
-        if(_d3d == nullptr) 
+        if(_d3d == nullptr)
             return false;
- 
+
         D3DPRESENT_PARAMETERS d3dpp{};
         d3dpp.Windowed                  = TRUE;
         d3dpp.SwapEffect                = D3DSWAPEFFECT_DISCARD;
         d3dpp.EnableAutoDepthStencil    = TRUE;
         d3dpp.PresentationInterval      = D3DPRESENT_INTERVAL_ONE;
         d3dpp.AutoDepthStencilFormat    = D3DFMT_D24S8;
-        
+
         if (FAILED(_d3d->CreateDevice(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, (HWND)windowHandle,
             D3DCREATE_HARDWARE_VERTEXPROCESSING,
             &d3dpp, &_device))) {
@@ -32,7 +32,7 @@ class IDevice_D3D9 : public IDevice {
         _device->SetRenderState(D3DRS_ALPHABLENDENABLE, 0);
         _device->SetRenderState(D3DRS_LIGHTING, FALSE);
         _device->SetRenderState(D3DRS_ZENABLE, TRUE);
-        
+
         _device->SetSamplerState(0, D3DSAMP_MINFILTER, D3DTEXF_LINEAR);
         _device->SetSamplerState(0, D3DSAMP_MAGFILTER, D3DTEXF_LINEAR);
         _device->SetSamplerState(1, D3DSAMP_MINFILTER, D3DTEXF_LINEAR);
@@ -41,10 +41,10 @@ class IDevice_D3D9 : public IDevice {
     }
 
     void destroy() override {
-        if(_device != nullptr) 
+        if(_device != nullptr)
             _device->Release();
 
-        if(_d3d != nullptr) 
+        if(_d3d != nullptr)
             _d3d->Release();
     }
 
@@ -55,7 +55,7 @@ class IDevice_D3D9 : public IDevice {
         if (texture == nullptr) {
             return {};
         }
-        
+
         if(data != nullptr && size > 0) {
             D3DLOCKED_RECT rect{};
             if (FAILED(texture->LockRect(0, &rect, 0, D3DLOCK_DISCARD))) {
@@ -69,7 +69,7 @@ class IDevice_D3D9 : public IDevice {
             memcpy(rect.pBits, data, size);
             texture->UnlockRect(0);
         }
-        
+
         return {
             ResourceType::TEXTURE,
             texture
@@ -101,7 +101,7 @@ class IDevice_D3D9 : public IDevice {
                 (reinterpret_cast<LPDIRECT3DVERTEXDECLARATION9>(handle._userData))->Release();
             } break;
         }
-        
+
         handle._userData = nullptr;
     }
 
@@ -129,7 +129,7 @@ class IDevice_D3D9 : public IDevice {
             elem->Type          = vsElem.DeclType;
             elem->Usage         = vsElem.DeclUsage;
             elem->UsageIndex    = vsElem.UsageIndex;
-            elem->Method        = D3DDECLMETHOD_DEFAULT;           
+            elem->Method        = D3DDECLMETHOD_DEFAULT;
         }
 
         vertexElements[vertexDecl.size()] = D3DDECL_END();
@@ -140,7 +140,7 @@ class IDevice_D3D9 : public IDevice {
         }
 
         return {
-            ResourceType::VERTEX_DECL, 
+            ResourceType::VERTEX_DECL,
             vsDecl
         };
     }
@@ -157,13 +157,13 @@ class IDevice_D3D9 : public IDevice {
         size_t verticesSize = verticesCnt * vertexStride;
         LPDIRECT3DVERTEXBUFFER9 vbuffer{ nullptr };
         if (FAILED(_device->CreateVertexBuffer(verticesSize,
-            0, 
+            0,
             0,
             D3DPOOL_DEFAULT, &vbuffer, nullptr))) {
             return {};
         }
 
-        if(vertices != nullptr) {  
+        if(vertices != nullptr) {
             void* verticesBuffer{ nullptr };
             if (FAILED(vbuffer->Lock(0, verticesSize, (void**)&verticesBuffer, 0))) {
                 if (vbuffer)
@@ -179,7 +179,7 @@ class IDevice_D3D9 : public IDevice {
         bufferUserData->Buffer = vbuffer;
         bufferUserData->Stride = vertexStride;
 
-        return { 
+        return {
             ResourceType::BUFFER_VERTEX,
             bufferUserData
         };
@@ -206,7 +206,7 @@ class IDevice_D3D9 : public IDevice {
 
             memcpy(indicesBuffer, (const void*)indices, indicesSize);
             ibuffer->Unlock();
-        
+
         }
 
         return {
@@ -249,7 +249,7 @@ class IDevice_D3D9 : public IDevice {
         auto m = GLM_DX(model);
         _device->SetTransform(D3DTS_WORLD, &m);
     }
-    
+
     void drawPrimitives(uint32_t vertexCount, uint32_t indicesCount, uint32_t vertexOffset = 0, uint32_t indexOffset = 0) override {
         _device->DrawIndexedPrimitive(D3DPT_TRIANGLELIST, vertexOffset, 0, vertexCount, indexOffset, indicesCount / 3);
     }
@@ -259,14 +259,14 @@ class IDevice_D3D9 : public IDevice {
         if(clearFlags & CLEAR_COLOR)
             flags |= D3DCLEAR_TARGET;
 
-        if(clearFlags & CLEAR_DEPTH) 
+        if(clearFlags & CLEAR_DEPTH)
             flags |= D3DCLEAR_ZBUFFER;
-        
+
         if( clearFlags& CLEAR_STENCIL)
             flags |= D3DCLEAR_STENCIL;
 
         _device->Clear(0,
-        NULL, 
+        NULL,
         flags,
         D3DCOLOR_XRGB(uint32_t(color.x * 255.0), uint32_t(color.y * 255.0), uint32_t(color.z * 255.0)),
         1.0f, 0);
@@ -283,7 +283,7 @@ class IDevice_D3D9 : public IDevice {
     void present() override {
         _device->Present(0, 0, 0, 0);
     }
-private: 
+private:
     LPDIRECT3D9 _d3d{ nullptr };
     LPDIRECT3DDEVICE9 _device{ nullptr};
 };

@@ -8,5 +8,5 @@ include_directories(
     ../vendors/glad/include
 )
 
-add_subdirectory(apps/demo)
+add_subdirectory(apps)
 add_subdirectory(modules)

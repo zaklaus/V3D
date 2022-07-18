@@ -23,7 +23,7 @@ bool IGraph::init(RenderingBackend backendType, int width, int height, const cha
 
     _backendType = backendType;
 
-    if(!glfwInit()) 
+    if(!glfwInit())
         return false;
 
     if(backendType != RenderingBackend::OpenGL) {
@@ -33,7 +33,7 @@ bool IGraph::init(RenderingBackend backendType, int width, int height, const cha
         glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
         glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     }
-    
+
     _window = glfwCreateWindow(width, height, title, nullptr, nullptr);
     if (_window == nullptr) {
         glfwTerminate();
@@ -62,7 +62,7 @@ bool IGraph::init(RenderingBackend backendType, int width, int height, const cha
         };
 
         glfwSetCursorPosCallback(_window, mouseCallback);
-        
+
         auto resizeCallback = [](GLFWwindow* window, int width, int height) {
             (reinterpret_cast<IGraph*>(glfwGetWindowUserPointer(window)))->onResize(width, height);
         };
@@ -75,7 +75,7 @@ bool IGraph::init(RenderingBackend backendType, int width, int height, const cha
     _monitor = glfwGetPrimaryMonitor();
     glfwGetWindowSize(_window, &_windowSize[0], &_windowSize[1]);
     glfwGetWindowPos(_window, &_windowPos[0], &_windowPos[1]);
-    
+
     if(!initRenderBackend()) {
         return false;
     }
@@ -88,7 +88,7 @@ bool IGraph::initRenderBackend() {
     switch(_backendType) {
 
         #ifdef _WIN32
-        case RenderingBackend::DirectX:
+        case RenderingBackend::D3D9:
             _renderBackend = createDeviceD3D9();
         break;
         #endif
@@ -105,13 +105,13 @@ bool IGraph::initRenderBackend() {
 
     if(_renderBackend == nullptr)
         return false;
-    
+
     void* windowHandle{ nullptr};
 
 #ifdef _WIN32
     windowHandle = glfwGetWin32Window(_window);
 #endif
-    
+
     if(!_renderBackend->init(windowHandle)) {
         return false;
     }
@@ -134,20 +134,20 @@ void IGraph::pollEvents() {
 void IGraph::render() {
     if(_backendType == RenderingBackend::OpenGL)
         glfwSwapBuffers(_window);
-    
+
     _mouseDelta = {};
 }
 
-bool IGraph::closeRequested() const { 
-    return glfwWindowShouldClose(_window); 
+bool IGraph::closeRequested() const {
+    return glfwWindowShouldClose(_window);
 }
 
-bool IGraph::isKeyDown(int key) const { 
-    return glfwGetKey(_window, key) == GLFW_PRESS; 
+bool IGraph::isKeyDown(int key) const {
+    return glfwGetKey(_window, key) == GLFW_PRESS;
 }
 
-bool IGraph::isMouseKeyDown(int key) const { 
-    return glfwGetMouseButton(_window, key) == GLFW_PRESS; 
+bool IGraph::isMouseKeyDown(int key) const {
+    return glfwGetMouseButton(_window, key) == GLFW_PRESS;
 }
 
 void IGraph::onResize(int width, int height) {
@@ -177,5 +177,5 @@ void IGraph::setCursorPos(float x, float y) {
 }
 
 double IGraph::getTime() {
-    return glfwGetTime(); 
+    return glfwGetTime();
 }

@@ -6,7 +6,7 @@ struct GLFWmonitor;
 class IDevice;
 
 enum class RenderingBackend {
-    DirectX, 
+    D3D9,
     OpenGL
 };
 

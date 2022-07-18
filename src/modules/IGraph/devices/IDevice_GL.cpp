@@ -1,6 +1,7 @@
 #include "IDevice_GL.h"
 #include "../IDevice.h"
 
+#undef APIENTRY // to suppress warnings
 #include <glad/glad.h>
 #include <stdio.h>
 
@@ -8,10 +9,21 @@ const char* vsShader = R"(#version 400 core
 layout (location = 0) in vec4 pos;
 layout (location = 1) in uint vertexColor;
 
+uniform bool u_positionTransformed;
+
 out vec4 vColor;
 
 void main() {
-    gl_Position = pos;
+    // TODO: store screen info in a shader and use it here
+    if (u_positionTransformed) {
+        gl_Position = pos;
+        gl_Position.x = -gl_Position.x;
+        gl_Position.y = 300 - gl_Position.y;
+        gl_Position.x /= 400;
+        gl_Position.y /= 300;
+    } else {
+        gl_Position = pos;
+    }
     vColor = unpackUnorm4x8(vertexColor);
 }
 )";
@@ -27,7 +39,7 @@ void main() {
 
 struct VertexDecl_Userdata {
     GLuint Vao{};
-    eastl::vector<VertexDeclElement> DeclElements; 
+    eastl::vector<VertexDeclElement> DeclElements;
 };
 
 struct GLResource_Userdata {
@@ -35,6 +47,11 @@ struct GLResource_Userdata {
 };
 
 class IDevice_GL : public IDevice {
+private:
+    GLuint _positionTransformedLoc{};
+    bool _positionTransformed{false};
+
+public:
     bool init(void* windowHandle) override {
         glEnable(GL_DEPTH_TEST);
 
@@ -72,12 +89,12 @@ class IDevice_GL : public IDevice {
         /*GLfloat maxAnisotropy;
         glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &maxAnisotropy);
         glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, maxAnisotropy);*/
-        
+
         auto* userData = new GLResource_Userdata();
         userData->Handle = textureId;
 
-        return {  
-            ResourceType::TEXTURE, 
+        return {
+            ResourceType::TEXTURE,
             (void*)userData
         };
     }
@@ -109,7 +126,7 @@ class IDevice_GL : public IDevice {
                 delete data;
             } break;
         }
-        
+
         handle._userData = nullptr;
     }
 
@@ -144,7 +161,7 @@ class IDevice_GL : public IDevice {
         return declTypesNormalized[elem.DeclType];
     }
 
-    GLuint getVrtexDeclStride(const eastl::vector<VertexDeclElement>& vertexDecl) {
+    GLuint getVertexDeclStride(const eastl::vector<VertexDeclElement>& vertexDecl) {
         constexpr GLuint declTypesSizes[] = {sizeof(float), sizeof(float), sizeof(float), sizeof(float), sizeof(uint32_t), sizeof(uint8_t), sizeof(int16_t), sizeof(int16_t), sizeof(uint8_t), sizeof(int16_t), sizeof(int16_t), sizeof(uint16_t), sizeof(uint16_t), sizeof(uint32_t), sizeof(int32_t), sizeof(int16_t), sizeof(int16_t), 0};
 
         GLuint strideSize{ 0 };
@@ -152,7 +169,7 @@ class IDevice_GL : public IDevice {
             strideSize += declTypesSizes[elem.DeclType] * getVertexDeclElementCount(elem);
         }
 
-        return strideSize;     
+        return strideSize;
     }
 
     //NOTE: buffers
@@ -165,14 +182,14 @@ class IDevice_GL : public IDevice {
 
         glBindVertexArray(vao);
 
-        GLuint vertexDeclStride = getVrtexDeclStride(vertexDecl);
+        GLuint vertexDeclStride = getVertexDeclStride(vertexDecl);
 
         for(size_t i = 0; i < vertexDecl.size(); i++) {
-            VertexDeclElement vsElem = vertexDecl[i];          
+            VertexDeclElement vsElem = vertexDecl[i];
             auto type = getVertexDeclElementType(vsElem);
-            if(type == GL_UNSIGNED_INT) 
+            if(type == GL_UNSIGNED_INT)
                 glVertexAttribIPointer(i, getVertexDeclElementCount(vsElem), type, vertexDeclStride, (void*)vsElem.Offset);
-            else 
+            else
                 glVertexAttribPointer(i, getVertexDeclElementCount(vsElem), type, isVertexDeclElementNormalized(vsElem), vertexDeclStride, (void*)vsElem.Offset);
 
             glEnableVertexAttribArray(i);
@@ -185,7 +202,7 @@ class IDevice_GL : public IDevice {
         data->Vao = vao;
 
         return {
-            ResourceType::VERTEX_DECL, 
+            ResourceType::VERTEX_DECL,
             (void*)data
         };
     }
@@ -197,6 +214,17 @@ class IDevice_GL : public IDevice {
         auto* data = reinterpret_cast<VertexDecl_Userdata*>(handle._userData);
         assert(data->Vao != 0);
         glBindVertexArray(data->Vao);
+
+        _positionTransformed = false;
+
+        for(auto& elem : data->DeclElements) {
+            if (elem.DeclUsage == DECLUSAGE_POSITIONT) {
+                _positionTransformed = true;
+                break;
+            }
+        }
+
+        glUniform1i(_positionTransformedLoc, _positionTransformed);
     }
 
     static constexpr GLuint getGlBufferUsage(BufferUsage usage) {
@@ -226,13 +254,13 @@ class IDevice_GL : public IDevice {
         if(vertices != nullptr) {
             glBindBuffer(GL_ARRAY_BUFFER, vbo);
             glBufferData(GL_ARRAY_BUFFER, (GLsizeiptr)(verticesCnt * vertexStride), vertices, getGlBufferUsage(usage));
-            glBindBuffer(GL_ARRAY_BUFFER, vbo);
-        }   
+            glBindBuffer(GL_ARRAY_BUFFER, 0);
+        }
 
         auto* data = new GLResource_Userdata();
         data->Handle = vbo;
 
-        return { 
+        return {
             ResourceType::BUFFER_VERTEX,
             (void*)data
         };
@@ -284,9 +312,9 @@ class IDevice_GL : public IDevice {
     }
 
     void setModelMatrix(const glm::mat4& model) override {
-        
+
     }
-    
+
     void drawPrimitives(uint32_t vertexCount, uint32_t indicesCount, uint32_t vertexOffset = 0, uint32_t indexOffset = 0) override {
         glDrawElements(GL_TRIANGLES, indicesCount, GL_UNSIGNED_INT, (const void*)(sizeof(uint32_t) * vertexOffset));
     }
@@ -296,15 +324,15 @@ class IDevice_GL : public IDevice {
         if(clearFlags & CLEAR_COLOR)
             flags |= GL_COLOR_BUFFER_BIT;
 
-        if(clearFlags & CLEAR_DEPTH) 
+        if(clearFlags & CLEAR_DEPTH)
             flags |= GL_DEPTH_BUFFER_BIT;
-        
+
         if( clearFlags & CLEAR_STENCIL)
             flags |= GL_STENCIL_BUFFER_BIT;
 
-        if(flags & CLEAR_COLOR) 
+        if(flags & CLEAR_COLOR)
             glClearColor(color.r, color.g, color.b, 1.0f);
-        
+
         glClear(flags);
     }
 
@@ -357,9 +385,11 @@ class IDevice_GL : public IDevice {
         glDeleteShader(vshader);
         glDeleteShader(fshader);
 
+        _positionTransformedLoc = glGetUniformLocation(program, "u_positionTransformed");
+
         return program;
     }
-private: 
+private:
     GLuint _shader{};
 };
 

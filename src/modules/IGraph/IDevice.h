@@ -16,8 +16,8 @@ enum class TextureFormat {
 };
 
 enum class ResourceType {
-    TEXTURE, 
-    BUFFER_INDEX, 
+    TEXTURE,
+    BUFFER_INDEX,
     BUFFER_VERTEX,
     VERTEX_DECL
 };
@@ -82,7 +82,7 @@ class IDevice {
 public:
     virtual bool init(void* windowHandle = nullptr) = 0;
     virtual void destroy() = 0;
-    
+
     //NOTE: textures
     virtual ResourceHandle createTexture(TextureFormat format, int width, int height, const void* data = nullptr, size_t size = 0, int levels = 1) = 0;
     virtual void bindTexture(const ResourceHandle& handle, int samplerId) = 0;

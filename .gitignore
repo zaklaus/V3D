@@ -34,3 +34,4 @@
 # bin & build
 bin/
 build/
+out/
