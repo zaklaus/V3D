@@ -13,41 +13,12 @@ struct VertexBuffer_Userdata {
 
 class IDevice_D3D9 : public IDevice {
 private:
+    LPDIRECT3D9 _d3d{ nullptr };
+    LPDIRECT3DDEVICE9 _device{ nullptr};
+
     eastl::unordered_map<DeviceStates, uint32_t> stateMap;
     eastl::unordered_map<SamplerStates, uint32_t> samplerMap;
     eastl::unordered_map<SamplerValues, uint32_t> samplerValueMap;
-
-    void initStateMap() {
-        stateMap[DeviceStates::FOG] = D3DRS_FOGENABLE;
-        stateMap[DeviceStates::ZBUFFER] = D3DRS_ZENABLE;
-        stateMap[DeviceStates::ALPHA_BLEND] = D3DRS_ALPHABLENDENABLE;
-        stateMap[DeviceStates::ALPHA_TEST] = D3DRS_ALPHATESTENABLE;
-        stateMap[DeviceStates::LIGHTING] = D3DRS_LIGHTING;
-        //todo
-    }
-
-    void initSamplerMap() {
-        samplerMap[SamplerStates::ADDRESSU] = D3DSAMP_ADDRESSU;
-        samplerMap[SamplerStates::ADDRESSV] = D3DSAMP_ADDRESSV;
-        samplerMap[SamplerStates::ADDRESSW] = D3DSAMP_ADDRESSW;
-        samplerMap[SamplerStates::BORDERCOLOR] = D3DSAMP_BORDERCOLOR;
-        samplerMap[SamplerStates::MAGFILTER] = D3DSAMP_MAGFILTER;
-        samplerMap[SamplerStates::MINFILTER] = D3DSAMP_MINFILTER;
-        samplerMap[SamplerStates::MIPFILTER] = D3DSAMP_MIPFILTER;
-        samplerMap[SamplerStates::MIPMAPLODBIAS] = D3DSAMP_MIPMAPLODBIAS;
-        samplerMap[SamplerStates::MAXMIPLEVEL] = D3DSAMP_MAXMIPLEVEL;
-        samplerMap[SamplerStates::MAXANISOTROPY] = D3DSAMP_MAXANISOTROPY;
-        samplerMap[SamplerStates::SRGBTEXTURE] = D3DSAMP_SRGBTEXTURE;
-        samplerMap[SamplerStates::ELEMENTINDEX] = D3DSAMP_ELEMENTINDEX;
-        samplerMap[SamplerStates::DMAPOFFSET] = D3DSAMP_DMAPOFFSET;
-
-        samplerValueMap[SAMPVAL_NONE] = D3DTEXF_NONE;
-        samplerValueMap[SAMPVAL_POINT] = D3DTEXF_POINT;
-        samplerValueMap[SAMPVAL_LINEAR] = D3DTEXF_LINEAR;
-        samplerValueMap[SAMPVAL_ANISOTROPIC] = D3DTEXF_ANISOTROPIC;
-        samplerValueMap[SAMPVAL_PYRAMIDALQUAD] = D3DTEXF_PYRAMIDALQUAD;
-        samplerValueMap[SAMPVAL_GAUSSIANQUAD] = D3DTEXF_GAUSSIANQUAD;
-    }
 
 public:
     bool init(void* windowHandle) override {
@@ -72,9 +43,9 @@ public:
         initSamplerMap();
 
         //NOTE: setup default states
-        setState(DeviceStates::ALPHA_BLEND, 0);
+        setState(DeviceStates::ALPHABLENDENABLE, 0);
         setState(DeviceStates::LIGHTING, 0);
-        setState(DeviceStates::ZBUFFER, 1);
+        setState(DeviceStates::ZENABLE, 1);
 
         setSamplerState(0, SamplerStates::MINFILTER, SAMPVAL_LINEAR);
         setSamplerState(0, SamplerStates::MAGFILTER, SAMPVAL_LINEAR);
@@ -352,8 +323,134 @@ public:
         _device->Present(0, 0, 0, 0);
     }
 private:
-    LPDIRECT3D9 _d3d{ nullptr };
-    LPDIRECT3DDEVICE9 _device{ nullptr};
+    void initStateMap() {
+        stateMap[DeviceStates::ZENABLE] = D3DRS_ZENABLE;
+        stateMap[DeviceStates::FILLMODE] = D3DRS_FILLMODE;
+        stateMap[DeviceStates::SHADEMODE] = D3DRS_SHADEMODE;
+        stateMap[DeviceStates::ZWRITEENABLE] = D3DRS_ZWRITEENABLE;
+        stateMap[DeviceStates::ALPHATESTENABLE] = D3DRS_ALPHATESTENABLE;
+        stateMap[DeviceStates::LASTPIXEL] = D3DRS_LASTPIXEL;
+        stateMap[DeviceStates::SRCBLEND] = D3DRS_SRCBLEND;
+        stateMap[DeviceStates::DESTBLEND] = D3DRS_DESTBLEND;
+        stateMap[DeviceStates::CULLMODE] = D3DRS_CULLMODE;
+        stateMap[DeviceStates::ZFUNC] = D3DRS_ZFUNC;
+        stateMap[DeviceStates::ALPHAREF] = D3DRS_ALPHAREF;
+        stateMap[DeviceStates::ALPHAFUNC] = D3DRS_ALPHAFUNC;
+        stateMap[DeviceStates::DITHERENABLE] = D3DRS_DITHERENABLE;
+        stateMap[DeviceStates::ALPHABLENDENABLE] = D3DRS_ALPHABLENDENABLE;
+        stateMap[DeviceStates::FOGENABLE] = D3DRS_FOGENABLE;
+        stateMap[DeviceStates::SPECULARENABLE] = D3DRS_SPECULARENABLE;
+        stateMap[DeviceStates::FOGCOLOR] = D3DRS_FOGCOLOR;
+        stateMap[DeviceStates::FOGTABLEMODE] = D3DRS_FOGTABLEMODE;
+        stateMap[DeviceStates::FOGSTART] = D3DRS_FOGSTART;
+        stateMap[DeviceStates::FOGEND] = D3DRS_FOGEND;
+        stateMap[DeviceStates::FOGDENSITY] = D3DRS_FOGDENSITY;
+        stateMap[DeviceStates::RANGEFOGENABLE] = D3DRS_RANGEFOGENABLE;
+        stateMap[DeviceStates::STENCILENABLE] = D3DRS_STENCILENABLE;
+        stateMap[DeviceStates::STENCILFAIL] = D3DRS_STENCILFAIL;
+        stateMap[DeviceStates::STENCILZFAIL] = D3DRS_STENCILZFAIL;
+        stateMap[DeviceStates::STENCILPASS] = D3DRS_STENCILPASS;
+        stateMap[DeviceStates::STENCILFUNC] = D3DRS_STENCILFUNC;
+        stateMap[DeviceStates::STENCILREF] = D3DRS_STENCILREF;
+        stateMap[DeviceStates::STENCILMASK] = D3DRS_STENCILMASK;
+        stateMap[DeviceStates::STENCILWRITEMASK] = D3DRS_STENCILWRITEMASK;
+        stateMap[DeviceStates::TEXTUREFACTOR] = D3DRS_TEXTUREFACTOR;
+        stateMap[DeviceStates::WRAP0] = D3DRS_WRAP0;
+        stateMap[DeviceStates::WRAP1] = D3DRS_WRAP1;
+        stateMap[DeviceStates::WRAP2] = D3DRS_WRAP2;
+        stateMap[DeviceStates::WRAP3] = D3DRS_WRAP3;
+        stateMap[DeviceStates::WRAP4] = D3DRS_WRAP4;
+        stateMap[DeviceStates::WRAP5] = D3DRS_WRAP5;
+        stateMap[DeviceStates::WRAP6] = D3DRS_WRAP6;
+        stateMap[DeviceStates::WRAP7] = D3DRS_WRAP7;
+        stateMap[DeviceStates::CLIPPING] = D3DRS_CLIPPING;
+        stateMap[DeviceStates::LIGHTING] = D3DRS_LIGHTING;
+        stateMap[DeviceStates::AMBIENT] = D3DRS_AMBIENT;
+        stateMap[DeviceStates::FOGVERTEXMODE] = D3DRS_FOGVERTEXMODE;
+        stateMap[DeviceStates::COLORVERTEX] = D3DRS_COLORVERTEX;
+        stateMap[DeviceStates::LOCALVIEWER] = D3DRS_LOCALVIEWER;
+        stateMap[DeviceStates::NORMALIZENORMALS] = D3DRS_NORMALIZENORMALS;
+        stateMap[DeviceStates::DIFFUSEMATERIALSOURCE] = D3DRS_DIFFUSEMATERIALSOURCE;
+        stateMap[DeviceStates::SPECULARMATERIALSOURCE] = D3DRS_SPECULARMATERIALSOURCE;
+        stateMap[DeviceStates::AMBIENTMATERIALSOURCE] = D3DRS_AMBIENTMATERIALSOURCE;
+        stateMap[DeviceStates::EMISSIVEMATERIALSOURCE] = D3DRS_EMISSIVEMATERIALSOURCE;
+        stateMap[DeviceStates::VERTEXBLEND] = D3DRS_VERTEXBLEND;
+        stateMap[DeviceStates::CLIPPLANEENABLE] = D3DRS_CLIPPLANEENABLE;
+        stateMap[DeviceStates::POINTSIZE] = D3DRS_POINTSIZE;
+        stateMap[DeviceStates::POINTSIZE_MIN] = D3DRS_POINTSIZE_MIN;
+        stateMap[DeviceStates::POINTSPRITEENABLE] = D3DRS_POINTSPRITEENABLE;
+        stateMap[DeviceStates::POINTSCALEENABLE] = D3DRS_POINTSCALEENABLE;
+        stateMap[DeviceStates::POINTSCALE_A] = D3DRS_POINTSCALE_A;
+        stateMap[DeviceStates::POINTSCALE_B] = D3DRS_POINTSCALE_B;
+        stateMap[DeviceStates::POINTSCALE_C] = D3DRS_POINTSCALE_C;
+        stateMap[DeviceStates::MULTISAMPLEANTIALIAS] = D3DRS_MULTISAMPLEANTIALIAS;
+        stateMap[DeviceStates::MULTISAMPLEMASK] = D3DRS_MULTISAMPLEMASK;
+        stateMap[DeviceStates::PATCHEDGESTYLE] = D3DRS_PATCHEDGESTYLE;
+        stateMap[DeviceStates::DEBUGMONITORTOKEN] = D3DRS_DEBUGMONITORTOKEN;
+        stateMap[DeviceStates::POINTSIZE_MAX] = D3DRS_POINTSIZE_MAX;
+        stateMap[DeviceStates::INDEXEDVERTEXBLENDENABLE] = D3DRS_INDEXEDVERTEXBLENDENABLE;
+        stateMap[DeviceStates::COLORWRITEENABLE] = D3DRS_COLORWRITEENABLE;
+        stateMap[DeviceStates::TWEENFACTOR] = D3DRS_TWEENFACTOR;
+        stateMap[DeviceStates::BLENDOP] = D3DRS_BLENDOP;
+        stateMap[DeviceStates::POSITIONDEGREE] = D3DRS_POSITIONDEGREE;
+        stateMap[DeviceStates::NORMALDEGREE] = D3DRS_NORMALDEGREE;
+        stateMap[DeviceStates::SCISSORTESTENABLE] = D3DRS_SCISSORTESTENABLE;
+        stateMap[DeviceStates::SLOPESCALEDEPTHBIAS] = D3DRS_SLOPESCALEDEPTHBIAS;
+        stateMap[DeviceStates::ANTIALIASEDLINEENABLE] = D3DRS_ANTIALIASEDLINEENABLE;
+        stateMap[DeviceStates::MINTESSELLATIONLEVEL] = D3DRS_MINTESSELLATIONLEVEL;
+        stateMap[DeviceStates::MAXTESSELLATIONLEVEL] = D3DRS_MAXTESSELLATIONLEVEL;
+        stateMap[DeviceStates::ADAPTIVETESS_X] = D3DRS_ADAPTIVETESS_X;
+        stateMap[DeviceStates::ADAPTIVETESS_Y] = D3DRS_ADAPTIVETESS_Y;
+        stateMap[DeviceStates::ADAPTIVETESS_Z] = D3DRS_ADAPTIVETESS_Z;
+        stateMap[DeviceStates::ADAPTIVETESS_W] = D3DRS_ADAPTIVETESS_W;
+        stateMap[DeviceStates::ENABLEADAPTIVETESSELLATION] = D3DRS_ENABLEADAPTIVETESSELLATION;
+        stateMap[DeviceStates::TWOSIDEDSTENCILMODE] = D3DRS_TWOSIDEDSTENCILMODE;
+        stateMap[DeviceStates::CCW_STENCILFAIL] = D3DRS_CCW_STENCILFAIL;
+        stateMap[DeviceStates::CCW_STENCILZFAIL] = D3DRS_CCW_STENCILZFAIL;
+        stateMap[DeviceStates::CCW_STENCILPASS] = D3DRS_CCW_STENCILPASS;
+        stateMap[DeviceStates::CCW_STENCILFUNC] = D3DRS_CCW_STENCILFUNC;
+        stateMap[DeviceStates::COLORWRITEENABLE1] = D3DRS_COLORWRITEENABLE1;
+        stateMap[DeviceStates::COLORWRITEENABLE2] = D3DRS_COLORWRITEENABLE2;
+        stateMap[DeviceStates::COLORWRITEENABLE3] = D3DRS_COLORWRITEENABLE3;
+        stateMap[DeviceStates::BLENDFACTOR] = D3DRS_BLENDFACTOR;
+        stateMap[DeviceStates::SRGBWRITEENABLE] = D3DRS_SRGBWRITEENABLE;
+        stateMap[DeviceStates::DEPTHBIAS] = D3DRS_DEPTHBIAS;
+        stateMap[DeviceStates::WRAP8] = D3DRS_WRAP8;
+        stateMap[DeviceStates::WRAP9] = D3DRS_WRAP9;
+        stateMap[DeviceStates::WRAP10] = D3DRS_WRAP10;
+        stateMap[DeviceStates::WRAP11] = D3DRS_WRAP11;
+        stateMap[DeviceStates::WRAP12] = D3DRS_WRAP12;
+        stateMap[DeviceStates::WRAP13] = D3DRS_WRAP13;
+        stateMap[DeviceStates::WRAP14] = D3DRS_WRAP14;
+        stateMap[DeviceStates::WRAP15] = D3DRS_WRAP15;
+        stateMap[DeviceStates::SEPARATEALPHABLENDENABLE] = D3DRS_SEPARATEALPHABLENDENABLE;
+        stateMap[DeviceStates::SRCBLENDALPHA] = D3DRS_SRCBLENDALPHA;
+        stateMap[DeviceStates::DESTBLENDALPHA] = D3DRS_DESTBLENDALPHA;
+        stateMap[DeviceStates::BLENDOPALPHA] = D3DRS_BLENDOPALPHA;
+    }
+
+    void initSamplerMap() {
+        samplerMap[SamplerStates::ADDRESSU] = D3DSAMP_ADDRESSU;
+        samplerMap[SamplerStates::ADDRESSV] = D3DSAMP_ADDRESSV;
+        samplerMap[SamplerStates::ADDRESSW] = D3DSAMP_ADDRESSW;
+        samplerMap[SamplerStates::BORDERCOLOR] = D3DSAMP_BORDERCOLOR;
+        samplerMap[SamplerStates::MAGFILTER] = D3DSAMP_MAGFILTER;
+        samplerMap[SamplerStates::MINFILTER] = D3DSAMP_MINFILTER;
+        samplerMap[SamplerStates::MIPFILTER] = D3DSAMP_MIPFILTER;
+        samplerMap[SamplerStates::MIPMAPLODBIAS] = D3DSAMP_MIPMAPLODBIAS;
+        samplerMap[SamplerStates::MAXMIPLEVEL] = D3DSAMP_MAXMIPLEVEL;
+        samplerMap[SamplerStates::MAXANISOTROPY] = D3DSAMP_MAXANISOTROPY;
+        samplerMap[SamplerStates::SRGBTEXTURE] = D3DSAMP_SRGBTEXTURE;
+        samplerMap[SamplerStates::ELEMENTINDEX] = D3DSAMP_ELEMENTINDEX;
+        samplerMap[SamplerStates::DMAPOFFSET] = D3DSAMP_DMAPOFFSET;
+
+        samplerValueMap[SAMPVAL_NONE] = D3DTEXF_NONE;
+        samplerValueMap[SAMPVAL_POINT] = D3DTEXF_POINT;
+        samplerValueMap[SAMPVAL_LINEAR] = D3DTEXF_LINEAR;
+        samplerValueMap[SAMPVAL_ANISOTROPIC] = D3DTEXF_ANISOTROPIC;
+        samplerValueMap[SAMPVAL_PYRAMIDALQUAD] = D3DTEXF_PYRAMIDALQUAD;
+        samplerValueMap[SAMPVAL_GAUSSIANQUAD] = D3DTEXF_GAUSSIANQUAD;
+    }
 };
 
 IDevice* createDeviceD3D9() {
