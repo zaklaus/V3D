@@ -57,6 +57,8 @@ private:
     bool _positionTransformed{false};
 
 public:
+    const char* getRenderingApiName() { return "OpenGL"; }
+
     bool init(void* windowHandle) override {
         glEnable(GL_DEPTH_TEST);
 

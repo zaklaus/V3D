@@ -17,5 +17,8 @@ endif()
 # Glad for GL impl
 add_subdirectory(glad)
 
+# Build spdlog
+add_subdirectory(spdlog)
+
 # Build EASTL
 add_subdirectory(EASTL)

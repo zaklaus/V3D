@@ -82,6 +82,7 @@ enum class BufferUsage {
 
 class IDevice {
 public:
+    virtual const char* getRenderingApiName() = 0;
     virtual bool init(void* windowHandle = nullptr) = 0;
     virtual void destroy() = 0;
 

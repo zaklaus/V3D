@@ -6,6 +6,7 @@ include_directories(
     ../vendors/glfw-3.3.7/include
     ../vendors/glm
     ../vendors/glad/include
+    ../vendors/spdlog/include
 )
 
 add_subdirectory(apps)

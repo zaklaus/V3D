@@ -20,25 +20,25 @@ ResourceHandle loadTextureFromFile(IDevice* device, const char* file) {
 
 int main() {
     IGraph graph{};
-    graph.init(RenderingBackend::D3D9, 800, 600, "Demo");
+    graph.init(RenderingBackend::OpenGL, 800, 600, "Demo");
 
     auto* device = graph.getDevice();
     auto texture = loadTextureFromFile(device, "chopin.jpg");
 
     struct Vertex {
         glm::vec3 p;
-        uint32_t color;
+        glm::vec2 uv;
     };
 
     Vertex vertices[] = {
-        { {  -3.0f,  3.0f, -3.0f },   0xFFFFFFFF },
-        { {   3.0f,  3.0f, -3.0f },   0xFFFFFFFF },
-        { {  -3.0f, -3.0f, -3.0f },   0xFFFFFFFF },
-        { {   3.0f, -3.0f, -3.0f },   0xFFFFFFFF },
-        { {  -3.0f,  3.0f,  3.0f },   0xFFFFFFFF },
-        { {   3.0f,  3.0f,  3.0f },   0xFFFFFFFF },
-        { {  -3.0f, -3.0f,  3.0f },   0xFFFFFFFF },
-        { {   3.0f, -3.0f,  3.0f },   0xFFFFFFFF }
+        { {  -1.0f,  1.0f, -1.0f },   {0.0f, 1.0f} },
+        { {   1.0f,  1.0f, -1.0f },   {1.0f, 0.0f} },
+        { {  -1.0f, -1.0f, -1.0f },   {1.0f, 0.0f} },
+        { {   1.0f, -1.0f, -1.0f },   {0.0f, 0.0f} },
+        { {  -1.0f,  1.0f,  1.0f },   {0.0f, 1.0f} },
+        { {   1.0f,  1.0f,  1.0f },   {1.0f, 1.0f} },
+        { {  -1.0f, -1.0f,  1.0f },   {1.0f, 0.0f} },
+        { {   1.0f, -1.0f,  1.0f },   {0.0f, 1.0f} }
     };
 
     uint32_t indices[] = {
@@ -57,8 +57,8 @@ int main() {
     };
 
     eastl::vector<VertexDeclElement> vsDecls = {
-        {0,     DECLTYPE_FLOAT3,        DECLUSAGE_POSITION,    0},
-        {12,    DECLTYPE_D3DCOLOR,      DECLUSAGE_COLOR,       0}
+        { 0,     DECLTYPE_FLOAT3,        DECLUSAGE_POSITION,  0 },
+        { 12,    DECLTYPE_FLOAT2,        DECLUSAGE_TEXCOORD,  0 }
     };
 
     ResourceHandle vbuffer = device->createVertexBuffer(vertices, ARRAY_LEN(vertices), sizeof(Vertex));
@@ -70,9 +70,10 @@ int main() {
     ResourceHandle vindex = device->createIndexBuffer(indices, ARRAY_LEN(indices));
     device->bindBuffer(vindex);
 
-    //device->bindTexture(texture, 0);
+    device->bindTexture(texture, 0);
+    
     const auto& windowSize = graph.getWindowSize();
-    auto projMatrix = glm::perspectiveLH(glm::radians(65.0f), float(windowSize.x / windowSize.y), 0.1f, 100.0f);
+    auto projMatrix = glm::perspectiveLH(glm::radians(45.0f), float(windowSize.x / (float)windowSize.y), 0.1f, 100.0f);
 
     auto targetPosition = glm::vec3(0.0f);
    
@@ -93,8 +94,7 @@ int main() {
             auto viewMatrix = glm::lookAtLH({0.0f, 0.0f, 15.0f}, targetPosition, {0.0f, 1.0f, 0.0f});
             device->setViewProjMatrix(viewMatrix, projMatrix);
 
-            auto scale = glm::scale(glm::mat4(1.0), {1.0f, 1.0f, 1.0f});
-            auto modelMatrix = glm::translate(glm::mat4(1.0f), targetPosition) * scale;
+            auto modelMatrix = glm::translate(glm::mat4(1.0f), targetPosition);
             device->setModelMatrix(modelMatrix);
 
             device->drawPrimitives(ARRAY_LEN(vertices), ARRAY_LEN(indices));

@@ -2,6 +2,7 @@
 #include "IDevice.h"
 
 #include <glad/glad.h>
+#include <spdlog/spdlog.h>
 
 #ifdef _WIN32
     #define GLFW_EXPOSE_NATIVE_WIN32
@@ -23,8 +24,10 @@ bool IGraph::init(RenderingBackend backendType, int width, int height, const cha
 
     _backendType = backendType;
 
-    if(!glfwInit())
+    if(!glfwInit()) {
+        spdlog::error("unable to initialize glfw !");
         return false;
+    }
 
     if(backendType != RenderingBackend::OpenGL) {
         glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
@@ -36,6 +39,7 @@ bool IGraph::init(RenderingBackend backendType, int width, int height, const cha
 
     _window = glfwCreateWindow(width, height, title, nullptr, nullptr);
     if (_window == nullptr) {
+        spdlog::error("unable to create glfwWindow ! w: {} h: {}", width, height);
         glfwTerminate();
         return false;
     }
@@ -80,6 +84,7 @@ bool IGraph::init(RenderingBackend backendType, int width, int height, const cha
         return false;
     }
 
+    spdlog::info("IGraph successfully created rendering backed: {}", _renderBackend->getRenderingApiName());
     _inited = true;
     return true;
 }
@@ -98,7 +103,7 @@ bool IGraph::initRenderBackend() {
         break;
 
         default: {
-            //LOG: unsported rendering backend
+            spdlog::error("unsuported rendering backed !");
             _renderBackend = nullptr;
         } break;
     }
@@ -113,6 +118,7 @@ bool IGraph::initRenderBackend() {
 #endif
 
     if(!_renderBackend->init(windowHandle)) {
+        spdlog::error("unable to init rendering backend: {} !");
         return false;
     }
 

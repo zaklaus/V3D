@@ -21,6 +21,8 @@ private:
     eastl::unordered_map<SamplerValues, uint32_t> samplerValueMap;
 
 public:
+    const char* getRenderingApiName() { return "DirectX 9"; }
+
     bool init(void* windowHandle) override {
         _d3d = Direct3DCreate9(D3D_SDK_VERSION);
         if(_d3d == nullptr)
