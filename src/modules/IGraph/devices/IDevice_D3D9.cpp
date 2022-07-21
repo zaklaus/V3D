@@ -174,7 +174,7 @@ public:
         if (FAILED(_device->CreateVertexBuffer(verticesSize,
             0,
             0,
-            D3DPOOL_DEFAULT, &vbuffer, nullptr))) {
+            D3DPOOL_MANAGED, &vbuffer, nullptr))) {
             return {};
         }
 

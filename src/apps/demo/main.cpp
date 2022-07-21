@@ -31,14 +31,14 @@ int main() {
     };
 
     Vertex vertices[] = {
-        { {  -3.0f, 3.0f, -3.0f},   0xFFFFFFFF},
-        { {  3.0f, 3.0f, -3.0f},    0xFFFFFFFF},
-        { { -3.0f, -3.0f, -3.0f},   0xFFFFFFFF},
-        { {  3.0f, -3.0f, -3.0f},   0xFFFFFFFF},
-        { {  -3.0f, 3.0f, 3.0f},  0xFFFFFFFF},
-        { {  3.0f, 3.0f, 3.0f},     0xFFFFFFFF},
-        { {   -3.0f, -3.0f, 3.0f}, 0xFFFFFFFF},
-        { {  3.0f, -3.0f, 3.0f},    0xFFFFFFFF}
+        { {  -3.0f,  3.0f, -3.0f },   0xFFFFFFFF },
+        { {   3.0f,  3.0f, -3.0f },   0xFFFFFFFF },
+        { {  -3.0f, -3.0f, -3.0f },   0xFFFFFFFF },
+        { {   3.0f, -3.0f, -3.0f },   0xFFFFFFFF },
+        { {  -3.0f,  3.0f,  3.0f },   0xFFFFFFFF },
+        { {   3.0f,  3.0f,  3.0f },   0xFFFFFFFF },
+        { {  -3.0f, -3.0f,  3.0f },   0xFFFFFFFF },
+        { {   3.0f, -3.0f,  3.0f },   0xFFFFFFFF }
     };
 
     uint32_t indices[] = {
@@ -57,8 +57,8 @@ int main() {
     };
 
     eastl::vector<VertexDeclElement> vsDecls = {
-        {0,     DECLTYPE_FLOAT4,    DECLUSAGE_POSITION,    0},
-        {12,    DECLTYPE_D3DCOLOR,    DECLUSAGE_COLOR,    0}
+        {0,     DECLTYPE_FLOAT3,        DECLUSAGE_POSITION,    0},
+        {12,    DECLTYPE_D3DCOLOR,      DECLUSAGE_COLOR,       0}
     };
 
     ResourceHandle vbuffer = device->createVertexBuffer(vertices, ARRAY_LEN(vertices), sizeof(Vertex));
@@ -71,13 +71,11 @@ int main() {
     device->bindBuffer(vindex);
 
     //device->bindTexture(texture, 0);
-
     const auto& windowSize = graph.getWindowSize();
-    auto projMatrix = glm::perspective(65.0f, float(windowSize.x / windowSize.y), 0.1f, 100.0f);
+    auto projMatrix = glm::perspectiveLH(glm::radians(65.0f), float(windowSize.x / windowSize.y), 0.1f, 100.0f);
 
     auto targetPosition = glm::vec3(0.0f);
    
-
     while(!graph.closeRequested()) {
         graph.pollEvents();
         device->clear(CLEAR_COLOR | CLEAR_DEPTH | CLEAR_STENCIL);
@@ -91,15 +89,16 @@ int main() {
         }
 
         device->beginScene();
+        {
+            auto viewMatrix = glm::lookAtLH({0.0f, 0.0f, 15.0f}, targetPosition, {0.0f, 1.0f, 0.0f});
+            device->setViewProjMatrix(viewMatrix, projMatrix);
 
-        auto viewMatrix = glm::lookAtLH({0.0f, 0.0f, 15.0f}, targetPosition, {0.0f, 1.0f, 0.0f});
-        device->setViewProjMatrix(viewMatrix, projMatrix);
+            auto scale = glm::scale(glm::mat4(1.0), {1.0f, 1.0f, 1.0f});
+            auto modelMatrix = glm::translate(glm::mat4(1.0f), targetPosition) * scale;
+            device->setModelMatrix(modelMatrix);
 
-        auto scale = glm::scale(glm::mat4(1.0), {1.0f, 1.0f, 1.0f});
-        auto modelMatrix = glm::translate(glm::mat4(1.0f), targetPosition) * scale;
-        device->setModelMatrix(modelMatrix);
-
-        device->drawPrimitives(ARRAY_LEN(vertices), ARRAY_LEN(indices));
+            device->drawPrimitives(ARRAY_LEN(vertices), ARRAY_LEN(indices));
+        }
         device->endScene();
         device->present();
         graph.render();
