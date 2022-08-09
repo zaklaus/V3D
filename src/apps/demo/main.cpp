@@ -2,6 +2,9 @@
 #include "IGraph.h"
 #include "IDevice.h"
 
+#include "I3D.h"
+#include "I3D_driver.h"
+
 #include <glm/glm.hpp>
 #include <glm/ext.hpp>
 
@@ -20,6 +23,10 @@ ResourceHandle loadTextureFromFile(IDevice* device, const char* file) {
 
 int main() {
     IGraph graph{};
+    I3D_driver driver{};
+
+    printf("%p yey frame\n", driver.createFrame(FRAME_NULL));
+    
     graph.init(RenderingBackend::OpenGL, 800, 600, "Demo");
 
     auto* device = graph.getDevice();

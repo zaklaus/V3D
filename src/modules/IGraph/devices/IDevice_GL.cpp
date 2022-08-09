@@ -6,7 +6,7 @@
 #include <stdio.h>
 
 const char* vsShader = R"(#version 400 core
-layout (location = 0) in vec4 pos;
+layout (location = 0) in vec3 pos;
 layout (location = 1) in vec2 uv;
 
 uniform bool u_positionTransformed;
@@ -15,15 +15,17 @@ out vec2 vTexCoords;
 
 void main() {
     // TODO: store screen info in a shader and use it here
-    if (u_positionTransformed) {
-        gl_Position = pos;
-        gl_Position.x = -gl_Position.x;
-        gl_Position.y = 300 - gl_Position.y;
-        gl_Position.x /= 400;
-        gl_Position.y /= 300;
-    } else {
-        gl_Position = pos;
-    }
+    // if (u_positionTransformed) {
+    //     gl_Position = vec4(pos, 1.0);
+    //     gl_Position.x = -gl_Position.x;
+    //     gl_Position.y = 300 - gl_Position.y;
+    //     gl_Position.x /= 400;
+    //     gl_Position.y /= 300;
+    // } else {
+        
+    // }
+
+    gl_Position = vec4(pos, 1.0);
 
     //vColor = unpackUnorm4x8(vertexColor);
     vTexCoords = uv;
