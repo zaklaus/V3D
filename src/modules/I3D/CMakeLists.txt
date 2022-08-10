@@ -1,6 +1,8 @@
 add_library(I3D STATIC
     I3D.h
     I3D_driver.cpp
+    I3D_texture.cpp
+    I3D_material.cpp
     I3D_frame.cpp
     I3D_dummy.cpp
     I3D_mesh.cpp
