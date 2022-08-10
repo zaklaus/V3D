@@ -63,7 +63,7 @@ void I3D_frame::setMatrix(const glm::mat4& mat) {
     propagateDirty();
 }
 
-const glm::vec3& I3D_frame::getPos() {
+const glm::vec3& I3D_frame::getPos() const {
     return _pos;
 }
 
@@ -73,7 +73,7 @@ void I3D_frame::setPos(glm::vec3& pos) {
     propagateDirty();
 }
 
-const glm::quat& I3D_frame::getRot() {
+const glm::quat& I3D_frame::getRot() const {
     return _rot;
 }
 
@@ -83,7 +83,7 @@ void I3D_frame::setRot(const glm::quat& rot) {
     propagateDirty();
 }
 
-const glm::vec3& I3D_frame::getScale() {
+const glm::vec3& I3D_frame::getScale() const {
     return _scale;
 }
 

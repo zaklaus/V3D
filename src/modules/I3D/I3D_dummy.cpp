@@ -19,6 +19,6 @@ void I3D_dummy::setBBox(const I3D_bbox& bbox) {
     _bbox = bbox;
 }
 
-const I3D_bbox& I3D_dummy::getBBox() {
+const I3D_bbox& I3D_dummy::getBBox() const {
     return _bbox;
 }

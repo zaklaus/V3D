@@ -8,7 +8,7 @@ public:
     void duplicate(I3D_frame* frame);
     
     void setBBox(const I3D_bbox& bbox);
-    const I3D_bbox& getBBox();
+    const I3D_bbox& getBBox() const;
 private:
     I3D_bbox _bbox{};
 };

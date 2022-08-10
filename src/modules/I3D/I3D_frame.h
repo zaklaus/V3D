@@ -26,7 +26,7 @@ public:
     void duplicate(I3D_frame* src);
 
     void setFrameFlags(uint32_t flags) { _flags = flags; }
-    uint32_t getFrameFlags() { return _flags; }
+    uint32_t getFrameFlags() const { return _flags; }
 
     I3D_frame* getParent() { return _parent; }
     const auto& getChildren() { return _children; }
@@ -34,23 +34,23 @@ public:
     void addChild(ea::shared_ptr<I3D_frame> child);
     void removeChild(ea::shared_ptr<I3D_frame> child);
 
-    bool isOn() { return _flags & FRMFLAGS_ON; }
+    bool isOn() const { return _flags & FRMFLAGS_ON; }
     void setOn(bool on);
 
-    const ea::string& getName() { return _name; }
+    const ea::string& getName() const { return _name; }
     void setName(ea::string& name) { _name = name; }
 
     const glm::mat4& getLocalMatrix();
     const glm::mat4& getMatrix();
     void setMatrix(const glm::mat4& mat);
 
-    const glm::vec3& getPos();
+    const glm::vec3& getPos() const;
     void setPos(glm::vec3& pos);
 
-    const glm::quat& getRot();
+    const glm::quat& getRot() const;
     void setRot(const glm::quat& rot);
 
-    const glm::vec3& getScale();
+    const glm::vec3& getScale() const;
     void setScale(const glm::vec3& scale);
 protected:
     void propagateDirty();
