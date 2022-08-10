@@ -31,3 +31,15 @@ private:
     glm::vec2 _range{};
     glm::mat4 _proj{};
 };
+
+//----------------------------
+
+#ifdef _DEBUG
+inline I3D_camera* I3DCAST_CAMERA(I3D_frame* f){ return !f ? nullptr : f->getFrameType()!=FRAME_CAMERA ? nullptr : reinterpret_cast<I3D_camera*>(f); }
+inline const I3D_camera* I3DCAST_CCAMERA(const I3D_frame* f){ return !f ? nullptr : f->getFrameType()!=FRAME_CAMERA ? nullptr : static_cast<const I3D_camera*>(f); }
+#else
+inline I3D_camera* I3DCAST_CAMERA(I3D_frame* f){ return reinterpret_cast<I3D_camera*>(f); }
+inline const I3D_camera* I3DCAST_CCAMERA(const I3D_frame* f){ return static_cast<const I3D_camera*>(f); }
+#endif
+
+//----------------------------

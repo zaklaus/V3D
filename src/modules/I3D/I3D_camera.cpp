@@ -11,7 +11,7 @@ I3D_camera::I3D_camera() :
 
 void I3D_camera::duplicate(I3D_frame* src) {
     if(src->getFrameType() == FRAME_CAMERA) {
-        I3D_camera* cam = reinterpret_cast<I3D_camera*>(src);
+        const I3D_camera* cam = I3DCAST_CAMERA(src);
         _fov = cam->_fov;
         _range = cam->_range;
         _camFlags |= CAMFLAGS_PROJ_DIRTY;

@@ -22,7 +22,7 @@ public:
         _flags(FRMFLAGS_ON | FRMFLAGS_MAT_DIRTY) {
     }
 
-    I3D_FRAME_TYPE getFrameType() { return _type; }
+    I3D_FRAME_TYPE getFrameType() const { return _type; }
     void duplicate(I3D_frame* src);
 
     void setFrameFlags(uint32_t flags) { _flags = flags; }
