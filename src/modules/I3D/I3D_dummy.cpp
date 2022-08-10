@@ -1,7 +1,8 @@
 #include "I3D_dummy.h"
 
-I3D_dummy::I3D_dummy() {
-    I3D_frame::I3D_frame();
+I3D_dummy::I3D_dummy() :
+    I3D_frame()
+{
     _type = FRAME_DUMMY;
     _bbox.Invalidate();
 }
