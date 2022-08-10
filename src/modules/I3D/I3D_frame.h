@@ -31,6 +31,7 @@ public:
     const ea::string& getName() { return _name; }
     void setName(ea::string& name) { _name = name; }
 
+    const glm::mat4& getLocalMatrix();
     const glm::mat4& getMatrix();
     void setMatrix(const glm::mat4& mat);
 
@@ -43,12 +44,15 @@ public:
     const glm::vec3& getScale();
     void setScale(const glm::vec3& scale);
 private:
+    void propagateDirty();
+
     I3D_FRAME_TYPE _type{};
     uint32_t _flags{};
     I3D_frame* _parent{ nullptr };
     ea::vector<I3D_frame*> _children{};
     ea::string _name{};
-    glm::mat4 _matrix{};
+    glm::mat4 _worldMatrix{}; //resulting world matrix = _matrix * parnent's matrix
+    glm::mat4 _matrix{}; //resulting local matrix = scale * rot * transl.
     glm::vec3 _pos{};
     glm::quat _rot{};
     glm::vec3 _scale{};
