@@ -43,11 +43,7 @@ const glm::mat4& I3D_frame::getMatrix() {
         _flags &= ~(FRMFLAGS_POS_DIRTY | FRMFLAGS_ROT_DIRTY | FRMFLAGS_SCALE_DIRTY);
     }
 
-    if(_parent != nullptr)
-        _worldMatrix = _parent->getMatrix() * _matrix;
-    else 
-        _worldMatrix = _matrix;
-    
+    _worldMatrix = (_parent != nullptr) ? _parent->getMatrix() * _matrix : _matrix;
     _flags &= ~FRMFLAGS_MAT_DIRTY;
     return _worldMatrix;
 }
