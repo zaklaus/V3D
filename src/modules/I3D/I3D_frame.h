@@ -51,7 +51,7 @@ public:
 
     const glm::vec3& getScale();
     void setScale(const glm::vec3& scale);
-private:
+protected:
     void propagateDirty();
     I3D_FRAME_TYPE _type{};
     uint32_t _flags{};

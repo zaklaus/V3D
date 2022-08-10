@@ -1,4 +1,5 @@
 #pragma once
+#include <cassert>
 #include <glm/glm.hpp>
 
 enum I3D_FRAME_TYPE {
