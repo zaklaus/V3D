@@ -8,6 +8,20 @@ void I3D_frame::setOn(bool on) {
         _flags &= ~FRMFLAGS_ON;   
 }
 
+void I3D_frame::addChild(ea::shared_ptr<I3D_frame> child) {
+    child->_parent = this;
+    child->_flags |= FRMFLAGS_MAT_DIRTY;
+
+    _children.push_back(ea::move(child));
+}
+
+void I3D_frame::removeChild(ea::shared_ptr<I3D_frame> child) {
+    auto it = ea::find(_children.begin(), _children.end(), child);
+    if(it != _children.end()) {
+        _children.erase(ea::remove(_children.begin(), _children.end(), child), _children.end());
+    }
+}
+
 const glm::mat4& I3D_frame::getLocalMatrix() {
     if(!(_flags & FRMFLAGS_MAT_DIRTY))
         return _matrix;
@@ -78,7 +92,7 @@ void I3D_frame::setScale(const glm::vec3& scale) {
 void I3D_frame::propagateDirty() {
     _flags |= FRMFLAGS_MAT_DIRTY;
 
-    for(auto* child : _children) {
+    for(const ea::shared_ptr<I3D_frame>& child : _children) {
         if(child) child->propagateDirty();
     }
 }

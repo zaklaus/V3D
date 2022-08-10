@@ -3,6 +3,7 @@
 
 #include <EASTL/vector.h>
 #include <EASTL/string.h>
+#include <EASTL/shared_ptr.h>
 namespace ea = eastl;
 
 #include <glm/ext.hpp>
@@ -27,7 +28,10 @@ public:
     uint32_t getFrameFlags() { return _flags; }
 
     I3D_frame* getParent() { return _parent; }
-    ea::vector<I3D_frame*>& getChildren() { return _children; }
+    const auto& getChildren() { return _children; }
+
+    void addChild(ea::shared_ptr<I3D_frame> child);
+    void removeChild(ea::shared_ptr<I3D_frame> child);
 
     bool isOn() { return _flags & FRMFLAGS_ON; }
     void setOn(bool on);
@@ -52,7 +56,7 @@ private:
     I3D_FRAME_TYPE _type{};
     uint32_t _flags{};
     I3D_frame* _parent{ nullptr };
-    ea::vector<I3D_frame*> _children{};
+    ea::vector<ea::shared_ptr<I3D_frame>> _children{};
     ea::string _name{};
     glm::mat4 _worldMatrix{}; // resulting world matrix = _matrix * parnent's matrix
     glm::mat4 _matrix{}; // resulting local matrix = scale * rot * transl.
