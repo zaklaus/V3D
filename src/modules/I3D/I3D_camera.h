@@ -2,7 +2,7 @@
 #include "I3D_frame.h"
 
 enum I3D_CAM_FLAGS : uint32_t {
-    FRMFLAGS_PROJ_DIRTY = (1 << 1)
+    CAMFLAGS_PROJ_DIRTY = (1 << 1)
 };
 
 class I3D_sector;
@@ -10,7 +10,7 @@ class I3D_camera : public I3D_frame {
 public:
     I3D_camera();
     const glm::mat4& getViewMatrix() { assert(!(_flags&FRMFLAGS_MAT_DIRTY)); return _matrix; }
-    const glm::mat4& getProjMatrix() { assert(!(_camFlags&FRMFLAGS_PROJ_DIRTY)); return _proj; }
+    const glm::mat4& getProjMatrix() { assert(!(_camFlags&CAMFLAGS_PROJ_DIRTY)); return _proj; }
 
     void setFOV(float fov);
     float getFOV() const { return _fov; }
