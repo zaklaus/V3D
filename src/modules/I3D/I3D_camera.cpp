@@ -9,6 +9,17 @@ I3D_camera::I3D_camera() :
     _type = FRAME_CAMERA;
 }
 
+void I3D_camera::duplicate(I3D_frame* src) {
+    if(src->getFrameType() == FRAME_CAMERA) {
+        I3D_camera* cam = reinterpret_cast<I3D_camera*>(src);
+        _fov = cam->_fov;
+        _range = cam->_range;
+        _camFlags |= CAMFLAGS_PROJ_DIRTY;
+    }
+
+    return I3D_frame::duplicate(src);
+}
+
 void I3D_camera::setFOV(float fov) {
     _fov = fov;
     _camFlags |= CAMFLAGS_PROJ_DIRTY;

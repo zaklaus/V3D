@@ -1,11 +1,14 @@
 #include "I3D_frame.h"
 #include <glm/gtx/quaternion.hpp>
 
-void I3D_frame::setOn(bool on) {
-    if(on)
-        _flags |= FRMFLAGS_ON;
-    else 
-        _flags &= ~FRMFLAGS_ON;   
+void I3D_frame::duplicate(I3D_frame* src) {
+    _pos = src->_pos;
+    _rot = src->_rot;
+    _scale = src->_scale;
+    _name = src->_name;
+    _flags = src->_flags;
+    _matrix = src->_matrix;
+    _worldMatrix = src->_worldMatrix;
 }
 
 void I3D_frame::addChild(ea::shared_ptr<I3D_frame> child) {
@@ -20,6 +23,13 @@ void I3D_frame::removeChild(ea::shared_ptr<I3D_frame> child) {
     if(it != _children.end()) {
         _children.erase(ea::remove(_children.begin(), _children.end(), child), _children.end());
     }
+}
+
+void I3D_frame::setOn(bool on) {
+    if(on)
+        _flags |= FRMFLAGS_ON;
+    else 
+        _flags &= ~FRMFLAGS_ON;   
 }
 
 const glm::mat4& I3D_frame::getLocalMatrix() {

@@ -23,7 +23,8 @@ public:
     }
 
     I3D_FRAME_TYPE getFrameType() { return _type; }
-    
+    void duplicate(I3D_frame* src);
+
     void setFrameFlags(uint32_t flags) { _flags = flags; }
     uint32_t getFrameFlags() { return _flags; }
 

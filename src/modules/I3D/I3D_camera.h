@@ -9,6 +9,8 @@ class I3D_sector;
 class I3D_camera : public I3D_frame {
 public:
     I3D_camera();
+    void duplicate(I3D_frame* src);
+    
     const glm::mat4& getViewMatrix() { assert(!(_flags&FRMFLAGS_MAT_DIRTY)); return _matrix; }
     const glm::mat4& getProjMatrix() { assert(!(_camFlags&CAMFLAGS_PROJ_DIRTY)); return _proj; }
 
