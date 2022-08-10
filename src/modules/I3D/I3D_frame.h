@@ -17,6 +17,10 @@ enum I3D_FRAME_FLAGS : uint32_t {
 
 class I3D_frame {
 public:
+    I3D_frame() :
+        _flags(FRMFLAGS_ON | FRMFLAGS_MAT_DIRTY) {
+    }
+
     I3D_FRAME_TYPE getFrameType() { return _type; }
     
     void setFrameFlags(uint32_t flags) { _flags = flags; }
@@ -45,14 +49,13 @@ public:
     void setScale(const glm::vec3& scale);
 private:
     void propagateDirty();
-
     I3D_FRAME_TYPE _type{};
     uint32_t _flags{};
     I3D_frame* _parent{ nullptr };
     ea::vector<I3D_frame*> _children{};
     ea::string _name{};
-    glm::mat4 _worldMatrix{}; //resulting world matrix = _matrix * parnent's matrix
-    glm::mat4 _matrix{}; //resulting local matrix = scale * rot * transl.
+    glm::mat4 _worldMatrix{}; // resulting world matrix = _matrix * parnent's matrix
+    glm::mat4 _matrix{}; // resulting local matrix = scale * rot * transl.
     glm::vec3 _pos{};
     glm::quat _rot{};
     glm::vec3 _scale{};

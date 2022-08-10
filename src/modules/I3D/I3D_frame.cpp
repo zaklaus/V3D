@@ -8,9 +8,17 @@ void I3D_frame::setOn(bool on) {
         _flags &= ~FRMFLAGS_ON;   
 }
 
-const glm::mat4& I3D_frame::getMatrix() {
+const glm::mat4& I3D_frame::getLocalMatrix() {
     if(!(_flags & FRMFLAGS_MAT_DIRTY))
         return _matrix;
+
+    getMatrix();
+    return _matrix;
+}
+
+const glm::mat4& I3D_frame::getMatrix() {
+    if(!(_flags & FRMFLAGS_MAT_DIRTY))
+        return _worldMatrix;
     
     if((_flags & FRMFLAGS_POS_DIRTY) || (_flags & FRMFLAGS_ROT_DIRTY) || (_flags & FRMFLAGS_SCALE_DIRTY)) {
         glm::mat4 translation = glm::translate(glm::mat4(1.0f), _pos);
