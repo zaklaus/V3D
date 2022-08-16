@@ -1,7 +1,7 @@
 #include "I3D_camera.h"
 
-I3D_camera::I3D_camera() : 
-    I3D_frame(),
+I3D_camera::I3D_camera(I3D_driver* driver) : 
+    I3D_frame(driver),
     _fov(glm::pi<float>() * 0.5f),
     _range(glm::vec2(0.1f, 1000.f)),
     _camFlags(CAMFLAGS_PROJ_DIRTY) 

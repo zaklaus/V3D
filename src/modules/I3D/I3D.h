@@ -2,6 +2,10 @@
 #include <cassert>
 #include <glm/glm.hpp>
 
+class I3D_frame;
+class I3D_sector;
+class I3D_driver;
+
 enum I3D_FRAME_TYPE {
     FRAME_NULL,
     FRAME_VISUAL,

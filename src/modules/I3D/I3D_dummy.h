@@ -3,7 +3,7 @@
 
 class I3D_dummy : public I3D_frame {
 public:
-    I3D_dummy();
+    I3D_dummy(I3D_driver* driver);
     
     void duplicate(I3D_frame* frame);
     

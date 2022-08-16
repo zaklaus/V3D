@@ -5,10 +5,9 @@ enum I3D_CAM_FLAGS : uint32_t {
     CAMFLAGS_PROJ_DIRTY = (1 << 1)
 };
 
-class I3D_sector;
 class I3D_camera : public I3D_frame {
 public:
-    I3D_camera();
+    I3D_camera(I3D_driver* driver);
     void duplicate(I3D_frame* src);
     
     const glm::mat4& getViewMatrix() { assert(!(_flags&FRMFLAGS_MAT_DIRTY)); return _matrix; }

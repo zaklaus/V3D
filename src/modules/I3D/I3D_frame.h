@@ -18,8 +18,9 @@ enum I3D_FRAME_FLAGS : uint32_t {
 
 class I3D_frame {
 public:
-    I3D_frame() :
-        _flags(FRMFLAGS_ON | FRMFLAGS_MAT_DIRTY) {
+    I3D_frame(I3D_driver* driver) :
+        _flags(FRMFLAGS_ON | FRMFLAGS_MAT_DIRTY),
+        _driver(driver) {
     }
 
     I3D_FRAME_TYPE getFrameType() const { return _type; }
@@ -54,6 +55,7 @@ public:
     void setScale(const glm::vec3& scale);
 protected:
     void propagateDirty();
+    I3D_driver* _driver{ nullptr };
     I3D_FRAME_TYPE _type{};
     uint32_t _flags{};
     I3D_frame* _parent{ nullptr };

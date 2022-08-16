@@ -3,7 +3,7 @@
 
 class I3D_sector : public I3D_frame {
 public:
-    I3D_sector();
+    I3D_sector(I3D_driver* driver);
 private:
 };
 
