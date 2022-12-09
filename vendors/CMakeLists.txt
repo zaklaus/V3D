@@ -1,21 +1,13 @@
 set(BUILD_SAMPLES CACHE BOOL OFF)
 
-# Build glfw
-set(GLFW_BUILD_EXAMPLES CACHE BOOL OFF)
-set(GLFW_BUILD_TESTS CACHE BOOL OFF)
-set(GLFW_BUILD_DOCS CACHE BOOL OFF)
-add_subdirectory(glfw-3.3.7)
-
-# Build glfw
+# Build glm
 add_subdirectory(glm)
 
-# Build DX (only windows)
-if(WIN32)
-    add_subdirectory(DirectX)
-endif()
+# Glfw
+add_subdirectory(glfw-3.3.8)
 
-# Glad for GL impl
-add_subdirectory(glad)
+# Build sokol
+#add_subdirectory(sokol)
 
 # Build spdlog
 add_subdirectory(spdlog)

@@ -1,6 +1,6 @@
 #include <iostream>
-#include "IGraph.h"
 #include "IDevice.h"
+#include "IGraph.h"
 
 #include "I3D.h"
 #include "I3D_driver.h"
@@ -13,10 +13,16 @@
 
 #define ARRAY_LEN(X) sizeof(X) / sizeof(X[0])
 
-ResourceHandle loadTextureFromFile(IDevice* device, const char* file) {
+Image loadTextureFromFile(IDevice* device, const char* file) {
     int w = 0, h = 0, channels = 0;
     auto* data = stbi_load("chopin.jpg", &w, &h, &channels, 4);
-    ResourceHandle texture = device->createTexture(TextureFormat::RGBA, w, h, data, w * h * channels);
+
+    ImageDesc imageDesc{};
+    imageDesc.width = w;
+    imageDesc.height = h;
+    imageDesc.data.subimage[0][0] = sg_range{ data, size_t(w * h * 4) };
+
+    Image texture = device->createImage(imageDesc);
     STBI_FREE(data);
     return texture;
 }
@@ -27,7 +33,7 @@ int main() {
 
     printf("%p yey frame\n", driver.createFrame(FRAME_NULL));
     
-    graph.init(RenderingBackend::OpenGL, 800, 600, "Demo");
+    graph.init(800, 600, "Demo");
 
     auto* device = graph.getDevice();
     auto texture = loadTextureFromFile(device, "chopin.jpg");
@@ -63,21 +69,21 @@ int main() {
         2, 7, 6,
     };
 
-    eastl::vector<VertexDeclElement> vsDecls = {
-        { 0,     DECLTYPE_FLOAT3,        DECLUSAGE_POSITION,  0 },
-        { 12,    DECLTYPE_FLOAT2,        DECLUSAGE_TEXCOORD,  0 }
-    };
+    BufferDesc bufferDescVertex{};
+    bufferDescVertex.type = SG_BUFFERTYPE_VERTEXBUFFER;
+    bufferDescVertex.data = SG_RANGE(vertices);
 
-    ResourceHandle vbuffer = device->createVertexBuffer(vertices, ARRAY_LEN(vertices), sizeof(Vertex));
-    device->bindBuffer(vbuffer);
+    Buffer vbuffer = device->createBuffer(bufferDescVertex);
+    device->bindVertexBuffer(vbuffer);
 
-    ResourceHandle vdecl = device->createVertexDeclaration(vsDecls, vbuffer);
-    device->setVertexDeclaration(vdecl);
+    BufferDesc bufferDescIndex{};
+    bufferDescIndex.type = SG_BUFFERTYPE_INDEXBUFFER;
+    bufferDescIndex.data = SG_RANGE(indices);
 
-    ResourceHandle vindex = device->createIndexBuffer(indices, ARRAY_LEN(indices));
-    device->bindBuffer(vindex);
+    Buffer vindex = device->createBuffer(bufferDescIndex);
+    device->bindIndexBuffer(vindex);
 
-    device->bindTexture(texture, 0);
+    device->bindImage(texture, 0);
     
     const auto& windowSize = graph.getWindowSize();
     auto projMatrix = glm::perspectiveLH(glm::radians(45.0f), float(windowSize.x / (float)windowSize.y), 0.1f, 100.0f);
@@ -86,7 +92,7 @@ int main() {
    
     while(!graph.closeRequested()) {
         graph.pollEvents();
-        device->clear(CLEAR_COLOR | CLEAR_DEPTH | CLEAR_STENCIL);
+        device->clear();
 
         if(graph.isKeyDown(KEY_A)) {
             targetPosition.x += 0.01f;
@@ -96,7 +102,7 @@ int main() {
             targetPosition.x -= 0.01f;
         }
 
-        device->beginScene();
+        device->beginPass();
         {
             auto viewMatrix = glm::lookAtLH({0.0f, 0.0f, 15.0f}, targetPosition, {0.0f, 1.0f, 0.0f});
             device->setViewProjMatrix(viewMatrix, projMatrix);
@@ -104,16 +110,17 @@ int main() {
             auto modelMatrix = glm::translate(glm::mat4(1.0f), targetPosition);
             device->setModelMatrix(modelMatrix);
 
-            device->drawPrimitives(ARRAY_LEN(vertices), ARRAY_LEN(indices));
+            //sg_draw(0, ARRAY_LEN(indices), 0);
+
+            //device->drawPrimitives(ARRAY_LEN(vertices), );
         }
-        device->endScene();
+        device->endPass();
         device->present();
         graph.render();
     }
 
-    device->destroyResource(texture);
-    device->destroyResource(vdecl);
-    device->destroyResource(vbuffer);
-    device->destroyResource(vindex);
+    device->destroyImage(texture);
+    device->destroyBuffer(vbuffer);
+    device->destroyBuffer(vindex);
     return 0;
 } 

@@ -16,7 +16,7 @@ const ea::string& I3D_texture::getFileName(int i) {
     return _filenames[i];
 }
 
-const ResourceHandle I3D_texture::getTextureHandle() {
+const Image I3D_texture::getTextureHandle() {
     return _textureHandle;
 }
 
@@ -38,7 +38,7 @@ const ea::string& I3D_animated_texture::getFileName(int i) {
     return _textures.empty() ? _e : _textures.front()->getFileName(i);
 }
 
-const ResourceHandle I3D_animated_texture::getTextureHandle() {
+const Image I3D_animated_texture::getTextureHandle() {
     if(_textures.empty()) return {};
 
     uint32_t currentRenderTime = _driver->getRenderTime();

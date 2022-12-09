@@ -1,42 +1,22 @@
 #include "IGraph.h"
 #include "IDevice.h"
 
-#include <glad/glad.h>
 #include <spdlog/spdlog.h>
-
-#ifdef _WIN32
-    #define GLFW_EXPOSE_NATIVE_WIN32
-    #include <GLFW/glfw3.h>
-    #include <GLFW/glfw3native.h>
-
-    #include "devices/IDevice_D3D9.h"
-#else
-    #include <GLFW/glfw3.h>
-#endif
-
-#include "devices/IDevice_GL.h"
+#include <GLFW/glfw3.h>
 
 IGraph::IGraph() { }
-
 IGraph::~IGraph() { }
 
-bool IGraph::init(RenderingBackend backendType, int width, int height, const char* title) {
-
-    _backendType = backendType;
-
+bool IGraph::init(int width, int height, const char* title) {
     if(!glfwInit()) {
         spdlog::error("unable to initialize glfw !");
         return false;
     }
 
-    if(backendType != RenderingBackend::OpenGL) {
-        glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-    } else {
-        glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-        glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-        glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-    }
-
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+    
     _window = glfwCreateWindow(width, height, title, nullptr, nullptr);
     if (_window == nullptr) {
         spdlog::error("unable to create glfwWindow ! w: {} h: {}", width, height);
@@ -45,11 +25,6 @@ bool IGraph::init(RenderingBackend backendType, int width, int height, const cha
     }
 
     glfwMakeContextCurrent(_window);
-
-    //NOTE: for GL we need extension loader
-    if(backendType == RenderingBackend::OpenGL) {
-        gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
-    }
 
     //NOTE: init callbacks
     {
@@ -84,40 +59,17 @@ bool IGraph::init(RenderingBackend backendType, int width, int height, const cha
         return false;
     }
 
-    spdlog::info("IGraph successfully created rendering backed: {}", _renderBackend->getRenderingApiName());
+    spdlog::info("IGraph successfully created rendering backed");
     _inited = true;
     return true;
 }
 
 bool IGraph::initRenderBackend() {
-    switch(_backendType) {
-
-        #ifdef _WIN32
-        case RenderingBackend::D3D9:
-            _renderBackend = createDeviceD3D9();
-        break;
-        #endif
-
-        case RenderingBackend::OpenGL:
-            _renderBackend = createDeviceGL();
-        break;
-
-        default: {
-            spdlog::error("unsuported rendering backed !");
-            _renderBackend = nullptr;
-        } break;
-    }
-
+    _renderBackend = createDevice();
     if(_renderBackend == nullptr)
         return false;
 
-    void* windowHandle{ nullptr};
-
-#ifdef _WIN32
-    windowHandle = glfwGetWin32Window(_window);
-#endif
-
-    if(!_renderBackend->init(windowHandle)) {
+    if(!_renderBackend->init()) {
         spdlog::error("unable to init rendering backend: {} !");
         return false;
     }
@@ -138,9 +90,7 @@ void IGraph::pollEvents() {
 }
 
 void IGraph::render() {
-    if(_backendType == RenderingBackend::OpenGL)
-        glfwSwapBuffers(_window);
-
+    glfwSwapBuffers(_window);
     _mouseDelta = {};
 }
 

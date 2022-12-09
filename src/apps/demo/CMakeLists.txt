@@ -2,4 +2,4 @@ add_executable(demo
     main.cpp
 )
 
-target_link_libraries(demo IGraph I3D)
+target_link_libraries(demo I3D IGraph)
